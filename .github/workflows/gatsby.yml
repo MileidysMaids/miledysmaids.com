@@ -34,10 +34,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    
       - name: Checkout
         uses: actions/checkout@v4
-        
+
       - name: Detect package manager
         id: detect-package-manager
         run: |
@@ -53,7 +52,7 @@ jobs:
             echo "Unable to determine package manager"
             exit 1
           fi
-          
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -62,10 +61,10 @@ jobs:
 
       - name: Create .env file
         run: |
-          touch .env
-          echo CONTENTFUL_SPACE_ID=${{ secrets.CONTENTFUL_SPACE_ID }} >> .env
-          echo CONTENTFUL_ACCESS_TOKEN=${{ secrets.CONTENTFUL_ACCESS_TOKEN }} >> .env
-      
+          touch .env.production
+          echo CONTENTFUL_SPACE_ID=${{ secrets.CONTENTFUL_SPACE_ID }} >> .env.production
+          echo CONTENTFUL_ACCESS_TOKEN=${{ secrets.CONTENTFUL_ACCESS_TOKEN }} >> .env.production
+
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
@@ -87,7 +86,7 @@ jobs:
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
       - name: Build with Gatsby
         env:
-          PREFIX_PATHS: 'true'
+          PREFIX_PATHS: "true"
         run: ${{ steps.detect-package-manager.outputs.manager }} run build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
