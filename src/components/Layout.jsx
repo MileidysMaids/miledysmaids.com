@@ -41,7 +41,7 @@ export const Layout = ({ children }) => {
   return (
     <main className="flex w-full flex-col" data-theme="cake">
       <NavBar className="h-20 w-full md:w-10/12">
-        <li>
+        {/* <li>
           <a href="/about">About us</a>
         </li>
         <li>
@@ -52,7 +52,7 @@ export const Layout = ({ children }) => {
         </li>
         <li>
           <a href="/contact">Contact</a>
-        </li>
+        </li> */}
       </NavBar>
 
       <div className="">{children}</div>
@@ -94,7 +94,7 @@ export const Layout = ({ children }) => {
           <Logo className="block h-32 w-auto" />
           <p className="text-center text-lg font-bold">Mileidy's Maids</p>
           <p className="text-center text-lg">Reliable house cleaning professionals serving the greater Atlanta area</p>
-          <p className="text-center text-lg">© 2021 Mileidy's Maids</p>
+          <p className="text-center text-lg">© 2024 Affordable Housekeeping LLC</p>
         </div>
       </footer>
     </main>

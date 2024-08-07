@@ -17,7 +17,7 @@ export default function IndexPage() {
         <p className="px-10 text-lg text-primary-content md:text-3xl">Reliable house cleaning professionals serving the greater Atlanta area</p>
 
         <div className="relative rounded-xl border-[3px] border-success bg-transparent shadow-lg md:my-5">
-          <a className="btn glass btn-warning text-wrap text-secondary md:btn-md lg:btn-lg" href="/estimate">
+          <a className="btn glass btn-warning text-wrap text-secondary md:btn-md lg:btn-lg">
             <span className="w-7">
               <CalculatorIcon />
             </span>
@@ -29,7 +29,7 @@ export default function IndexPage() {
           </a>
         </div>
 
-        <p className="px-10 text-lg text-primary-content md:text-3xl">Estimates Calculator, and Scheduling cleaning</p>
+        <p className="px-10 text-lg text-primary-content md:text-3xl">Estimates calculator and Scheduling appointments</p>
         <h1 className="text-2xl font-bold text-accent md:text-7xl">Coming soon...</h1>
 
         <div className="my-10 flex flex-row md:hidden md:gap-10">
