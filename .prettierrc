@@ -2,5 +2,6 @@
   "tabWidth": 2,
   "useTabs": false,
   "bracketSameLine": true,
-  "printWidth": 180
+  "printWidth": 180,
+  "plugins": ["prettier-plugin-tailwindcss"]
 }

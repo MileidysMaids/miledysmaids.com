@@ -1,4 +1,4 @@
-require("dotenv").config({ path: [`.env.${process.env.NODE_ENV}`, ".env"] });
+require("dotenv").config({ path: `.env.${process.env.NODE_ENV}` });
 
 /**
  * @type {import('gatsby').GatsbyConfig}
@@ -14,7 +14,8 @@ module.exports = {
       options: {
         accessToken: process.env.CONTENTFUL_ACCESS_TOKEN,
         spaceId: process.env.CONTENTFUL_SPACE_ID,
-        host: `preview.contentful.com`,
+        host: "preview.contentful.com",
+        environment: "development",
       },
     },
     "gatsby-plugin-image",
