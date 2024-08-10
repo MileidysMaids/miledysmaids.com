@@ -17,7 +17,7 @@
   }
 
   .top-oval {
-    clip-path: ellipse(90% 100% at 50% 120%);
+    clip-path: ellipse(90% 100% at 50% 100%);
   }
   @media (max-width: 640px) {
     .top-oval {
