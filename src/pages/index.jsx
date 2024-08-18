@@ -1,13 +1,11 @@
 import * as React from "react";
-import "../styles/background.css";
-import landing_page_foto_1 from "../images/landing-page-1.jpg";
-import landing_page_foto_2 from "../images/landing-page-2.jpg";
-import landing_page_foto_3 from "../images/landing-page-3.jpg";
-import shine from "../images/svg/shine.svg";
-import { CalculatorIcon } from "../icons/CalculatorIcon";
-import { Layout } from "../components/Layout";
-import { useEstimate } from "../hooks/useEstimate";
 import { useForm } from "react-hook-form";
+import "@/styles/background.css";
+import landing_page_foto_1 from "@/images/landing-page-1.jpg";
+import landing_page_foto_2 from "@/images/landing-page-2.jpg";
+import landing_page_foto_3 from "@/images/landing-page-3.jpg";
+import shine from "../images/svg/shine.svg";
+import { useEstimate } from "@/hooks/useEstimate";
 
 const defaultValues = {
   bedroom_count: 1,
@@ -34,7 +32,7 @@ export default function IndexPage() {
   };
 
   return (
-    <Layout>
+    <>
       <section
         id="landing-page"
         className="background-svg bottom-oval flex w-full flex-grow flex-col items-center justify-center gap-5 border-r p-5 pt-40 sm:h-screen md:gap-10 md:pt-5">
@@ -97,12 +95,8 @@ export default function IndexPage() {
           Call now <span className="font-bold text-accent">(770) 610-3339</span>
         </h1>
       </div>
-    </Layout>
+    </>
   );
 }
 
-export const Head = () => (
-  <>
-    <title>Home Page</title>
-  </>
-);
+export const Head = () => <title>Home Page</title>;
