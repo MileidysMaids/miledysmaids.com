@@ -75,10 +75,17 @@ export const Footer = () => {
 };
 
 export const Layout = ({ children }) => {
+  // Inject styles only to the first children element
+  const childrenArray = React.Children.toArray(children);
+  const firstChildrenWithStyles = React.cloneElement(childrenArray[0], {
+    injectedClassNames: "pt-20 md:pt-20 flex-1",
+  });
+  const childrenWithInjectedStyles = [firstChildrenWithStyles, ...childrenArray.slice(1)];
+
   return (
-    <main className="flex w-full flex-col" data-theme="cake">
+    <main className="flex min-h-[100vh] flex-col" data-theme="cake">
       <NavBar className="h-20 w-full md:w-10/12">
-        {/* <li>
+        <li>
           <a href="/about">About us</a>
         </li>
         <li>
@@ -89,10 +96,10 @@ export const Layout = ({ children }) => {
         </li>
         <li>
           <a href="/contact">Contact</a>
-        </li> */}
+        </li>
       </NavBar>
 
-      <div className="">{children}</div>
+      {childrenWithInjectedStyles}
 
       <Footer />
     </main>

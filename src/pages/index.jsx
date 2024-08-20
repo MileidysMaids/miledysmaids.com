@@ -13,7 +13,7 @@ const defaultValues = {
   square_feet: 500,
 };
 
-export default function IndexPage() {
+export default function IndexPage({ injectedClassNames }) {
   const { estimate, calculate } = useEstimate({ defaultValues });
   const { register, handleSubmit } = useForm({ defaultValues });
 
@@ -35,13 +35,24 @@ export default function IndexPage() {
     <>
       <section
         id="landing-page"
-        className="background-svg bottom-oval flex w-full flex-grow flex-col items-center justify-center gap-5 border-r p-5 pt-40 sm:h-screen md:gap-10 md:pt-5">
+        className={[
+          injectedClassNames,
+          "background-svg bottom-oval flex w-full flex-grow flex-col items-center justify-center gap-5 border-r p-5 pt-40 sm:h-screen md:gap-10 md:pt-5",
+        ].join(" ")}>
         <h1 className="text-2xl font-bold md:text-7xl">Give your home some shine</h1>
-        <p className="hidden px-10 text-lg text-primary-content md:block md:text-3xl">Reliable house cleaning professionals serving the greater Atlanta area</p>
-        <p className="text-xl font-semibold text-primary-content drop-shadow-2xl md:hidden md:px-10 md:text-3xl">Book in less than 1 minute!</p>
+
+        <p className="hidden px-10 text-lg text-primary-content md:block md:text-3xl">
+          Reliable house cleaning professionals serving the greater Atlanta area
+        </p>
+
+        <p className="text-xl font-semibold text-primary-content drop-shadow-2xl md:hidden md:px-10 md:text-3xl">
+          Book in less than 1 minute!
+        </p>
 
         <form onChange={handleSubmit(onSubmit)} className="flex w-full flex-col items-center justify-center gap-5 py-10 md:flex-row">
-          <select {...register("bedroom_count")} className="select select-secondary w-full max-w-xs bg-secondary/10 font-semibold text-secondary">
+          <select
+            {...register("bedroom_count")}
+            className="select select-secondary w-full max-w-xs bg-secondary/10 font-semibold text-secondary">
             <option disabled value={0}>
               Number of bedrooms
             </option>
@@ -52,7 +63,9 @@ export default function IndexPage() {
             ))}
           </select>
 
-          <select {...register("bathroom_count")} className="select select-secondary w-full max-w-xs bg-secondary/10 font-semibold text-secondary">
+          <select
+            {...register("bathroom_count")}
+            className="select select-secondary w-full max-w-xs bg-secondary/10 font-semibold text-secondary">
             <option disabled value={0}>
               Number of bathrooms
             </option>
@@ -63,7 +76,9 @@ export default function IndexPage() {
             ))}
           </select>
 
-          <select {...register("square_feet")} className="select select-secondary w-full max-w-xs bg-secondary/10 font-semibold text-secondary">
+          <select
+            {...register("square_feet")}
+            className="select select-secondary w-full max-w-xs bg-secondary/10 font-semibold text-secondary">
             <option disabled value={0}>
               Estimated square feet
             </option>
@@ -75,12 +90,27 @@ export default function IndexPage() {
           </select>
         </form>
 
-        <a className="btn glass btn-warning text-wrap text-secondary md:btn-md lg:btn-lg" href="/#estimate">
+        <a className="btn glass btn-warning text-wrap text-secondary md:btn-md lg:btn-lg" href="/estimate">
           Schedule it! - <span className="text-xl font-bold text-accent">${estimate.subtotal}</span>
           <span className="-translate-x-2 translate-y-1 text-xs">/cleaning</span>
-          <object className="absolute -right-2 -top-5 h-10 w-7 animate-[pulse_1s_infinite]" data={shine} type="image/svg+xml" aria-label="shine" />
-          <object className="absolute -right-4 -top-7 h-10 w-3 animate-[pulse_2s_infinite]" data={shine} type="image/svg+xml" aria-label="shine" />
-          <object className="absolute -right-7 -top-4 h-10 w-4 animate-[pulse_3s_infinite]" data={shine} type="image/svg+xml" aria-label="shine" />
+          <object
+            className="absolute -right-2 -top-5 h-10 w-7 animate-[pulse_1s_infinite]"
+            data={shine}
+            type="image/svg+xml"
+            aria-label="shine"
+          />
+          <object
+            className="absolute -right-4 -top-7 h-10 w-3 animate-[pulse_2s_infinite]"
+            data={shine}
+            type="image/svg+xml"
+            aria-label="shine"
+          />
+          <object
+            className="absolute -right-7 -top-4 h-10 w-4 animate-[pulse_3s_infinite]"
+            data={shine}
+            type="image/svg+xml"
+            aria-label="shine"
+          />
         </a>
 
         <div className="my-10 flex flex-row sm:hidden sm:gap-10">
