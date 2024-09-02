@@ -5,6 +5,7 @@ import landing_page_foto_1 from "@/images/landing-page-1.jpg";
 import landing_page_foto_2 from "@/images/landing-page-2.jpg";
 import landing_page_foto_3 from "@/images/landing-page-3.jpg";
 import shine from "../images/svg/shine.svg";
+import { Script } from "gatsby";
 import { useEstimate } from "@/hooks/useEstimate";
 
 const defaultValues = {
@@ -90,7 +91,11 @@ export default function IndexPage({ injectedClassNames }) {
           </select>
         </form>
 
-        <a className="btn glass btn-warning text-wrap text-secondary md:btn-md lg:btn-lg" href="/estimate">
+        <a
+          className="btn glass btn-warning text-wrap text-secondary md:btn-md lg:btn-lg"
+          data-token="50a11f3204e740a39e0971a66f897904"
+          data-orgname="Mileidys-Maids"
+          href="/service/booking">
           Schedule it! - <span className="text-xl font-bold text-accent">${estimate.subtotal}</span>
           <span className="-translate-x-2 translate-y-1 text-xs">/cleaning</span>
           <object
@@ -129,4 +134,11 @@ export default function IndexPage({ injectedClassNames }) {
   );
 }
 
-export const Head = () => <title>Home Page</title>;
+export const Head = () => (
+  <>
+    <title>Home Page</title>
+
+    {/* Scripts */}
+    <script async src="https://online-booking.housecallpro.com/script.js?token=50a11f3204e740a39e0971a66f897904&orgName=Mileidys-Maids" />
+  </>
+);

@@ -1,17 +1,33 @@
 /**
  * Calculates the estimate for a cleaning service based on various parameters.
  * @param {Object} props - The input parameters for the estimate calculation.
+ * @param {number} props.bedroom_count - The number of bedrooms. (Cost: $17 per bedroom)
+ * @param {number} props.bathroom_count - The number of bathrooms. (Cost: $19 per bathroom)
+ * @param {number} props.window_count - The number of windows. (Cost: $5 per window)
+ * @param {number} props.oven_count - The number of ovens. (Cost: $18 per oven)
+ * @param {number} props.square_feet - The square footage of the property. (Cost: $0.04 per sqft)
  * @param {number} props.bedroom_count - The number of bedrooms.
  * @param {number} props.bathroom_count - The number of bathrooms.
  * @param {number} props.window_count - The number of windows.
  * @param {number} props.oven_count - The number of ovens.
  * @param {number} props.square_feet - The square footage of the property.
  * @param {string} props.service_type - The type of service (standard, deep, move_in_out).
+ *   Standard: $0 (0% charge)
+ *   Deep: $0.5 (50% charge)
+ *   Move-in/Move-out: $0.5 (50% charge)
  * @param {string} props.service_frequency - The frequency of the service (one_time, weekly, biweekly, monthly).
+ *   One time: $0 (0% discount)
+ *   Weekly: $0.2 (20% discount)
+ *   Biweekly: $0.1 (10% discount)
+ *   Monthly: $0.1 (10% discount)
  * @param {number} props.refrigerator_count - The number of refrigerators.
+ * @param {number} props.microwave_count - The number of microwaves. (Cost: $10 per microwave)
+ * @param {boolean} props.has_basement - Indicates if the property has a basement. (Cost: $75)
  * @param {number} props.microwave_count - The number of microwaves.
  * @param {boolean} props.has_basement - Indicates if the property has a basement.
  * @param {boolean} props.has_pet - Indicates if the property has a pet.
+ * @param {boolean} props.has_baseboard - Indicates if the property has baseboard. (Cost: $0.04 per sqft)
+ * @param {boolean} props.has_kitchen_cabinets - Indicates if the property has kitchen cabinets. (Cost: $40)
  * @param {boolean} props.has_baseboard - Indicates if the property has baseboard.
  * @param {boolean} props.has_kitchen_cabinets - Indicates if the property has kitchen cabinets.
  * @param {boolean} props.has_bathroom_cabinets - Indicates if the property has bathroom cabinets.
@@ -65,13 +81,28 @@ export const calculateEstimate = (props) => {
   const windows_cost = 5;
   const oven_cost = 18;
   const microwave_cost = 10;
-  const baseboard_cost = 0.04; // per square foot
+  const baseboard_cost = 0.04;
   const basement_cost = 75;
   const kitchen_cab_cost = 40;
   const bathroom_cab_cost = 30;
   const change_linens_cost = 5;
   const pet_charge_cost = 25;
   const refrigerator_cost = 40;
+
+  const prices = {
+    bedroom_cost,
+    bathroom_cost,
+    windows_cost,
+    oven_cost,
+    microwave_cost,
+    baseboard_cost,
+    basement_cost,
+    kitchen_cab_cost,
+    bathroom_cab_cost,
+    change_linens_cost,
+    pet_charge_cost,
+    refrigerator_cost,
+  };
 
   // Determine base service cost
   const base_service_cost =
@@ -111,5 +142,5 @@ export const calculateEstimate = (props) => {
   // Calculate final total
   const total = subtotal + taxes;
 
-  return { total, taxes, subtotal, discount, before_discount: base_charges };
+  return { total, taxes, subtotal, discount, before_discount: base_charges, prices };
 };
