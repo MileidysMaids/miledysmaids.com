@@ -5,8 +5,7 @@ import { Estimate } from "./Estimate";
 
 const steps = [
   { name: "Quote", component: Estimate },
-  { name: "Services 1", component: Services },
-  { name: "Services 2", component: Services },
+  { name: "Services", component: Services },
 ];
 
 export default function Booking() {

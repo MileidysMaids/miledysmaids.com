@@ -138,6 +138,7 @@ export const calculateEstimate = (props) => {
 
   // Calculate taxes
   const taxes = subtotal * TAXES;
+  // const taxes = parseFloat((subtotal * (TAXES / 100)).toFixed(2));
 
   // Calculate final total
   const total = subtotal + taxes;
