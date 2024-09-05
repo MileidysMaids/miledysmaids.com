@@ -1,9 +1,9 @@
 import React from "react";
-import Booking from "@/components/Booking/Booking";
+import Booking from "@/components/Booking/";
 
 export default function Component({ injectedClassNames }) {
   return (
-    <div className={[injectedClassNames].join(" ")}>
+    <div className={[injectedClassNames, "flex flex-col"].join(" ")}>
       <Booking />
     </div>
   );

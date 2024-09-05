@@ -3,7 +3,7 @@ import { Logo } from "./Logo.jsx";
 
 export const NavBar = ({ children, ...props }) => {
   return (
-    <div className="absolute left-0 top-0 z-10 flex w-full justify-center">
+    <div className="absolute left-0 top-0 z-10 flex w-dvw justify-center">
       <div className="drawer" {...props}>
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
 
@@ -41,7 +41,7 @@ export const NavBar = ({ children, ...props }) => {
 
 export const Footer = () => {
   return (
-    <footer className="top-oval footer footer-center bg-secondary pb-5 pt-10 text-primary-content sm:mt-10">
+    <footer className="top-oval footer footer-center w-dvw bg-secondary pb-5 pt-10 text-primary-content sm:mt-10">
       <aside>
         <Logo className="block h-32" />
         <p>
@@ -78,13 +78,13 @@ export const Layout = ({ children }) => {
   // Inject styles only to the first children element
   const childrenArray = React.Children.toArray(children);
   const firstChildrenWithStyles = React.cloneElement(childrenArray[0], {
-    injectedClassNames: "pt-20 md:pt-20 flex-1",
+    injectedClassNames: "pt-20 md:pt-20 flex-1 ",
   });
   const childrenWithInjectedStyles = [firstChildrenWithStyles, ...childrenArray.slice(1)];
 
   return (
-    <main className="flex min-h-[100vh] flex-col" data-theme="cake">
-      <NavBar className="h-20 w-full md:w-10/12">
+    <main className="relative flex min-h-[100vh] flex-col overflow-x-hidden" data-theme="cake">
+      <NavBar className="h-20 md:w-10/12">
         <li>
           <a href="/about">About us</a>
         </li>
