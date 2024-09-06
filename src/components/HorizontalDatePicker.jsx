@@ -1,7 +1,7 @@
 import React from "react";
 import moment from "moment";
 
-const Date = ({ date, onSelectDate, selected }) => {
+const Date = ({ date, onSelectDate, selected, disabled }) => {
   // get the day name e.g. Monday
   const day = moment(date).format("MM/DD/YYYY") === moment().format("MM/DD/YYYY") ? "Today" : moment(date).format("ddd");
 
@@ -11,19 +11,26 @@ const Date = ({ date, onSelectDate, selected }) => {
   // get the full date e.g 2021/01/01 - we'll use this to compare the date to the selected date
   const fullDate = moment(date).format("MM/DD/YYYY");
 
+  const textColor = "text-teal-900";
+
+  const isWeekend = moment(date).format("dddd") === "Saturday" || moment(date).format("dddd") === "Sunday";
+
   return (
-    <div
+    <button
+      type="button"
       onClick={() => onSelectDate(fullDate)}
+      disabled={disabled}
       className={[
-        "mx-2 my-3 h-24 w-20 cursor-pointer items-center rounded-xl border-white bg-white p-3",
-        selected === fullDate && "background-svg text-white",
+        "btn btn-ghost mx-2 my-3 flex h-24 w-20 cursor-pointer flex-col items-start justify-between rounded-xl border border-secondary border-opacity-55 bg-cyan-100 bg-opacity-80 p-3 text-left brightness-110 transition-transform hover:brightness-100",
+        textColor,
+        disabled && "disabled",
+        isWeekend && "scale-90",
+        selected === fullDate && "background-svg scale-105 border-0 text-white hover:brightness-110",
       ].join(" ")}>
-      <p className={[selected === fullDate && "text-white", "text-xl font-bold"].join(" ")}>{day}</p>
+      <p className={[selected === fullDate && textColor, "text-xl font-bold", isWeekend && "opacity-60"].join(" ")}>{day}</p>
 
-      <div className="h-3" />
-
-      <p className={["text-2xl font-bold", selected === fullDate && "text-white"].join(" ")}>{dayNumber}</p>
-    </div>
+      <p className={["text-2xl font-bold", selected === fullDate && textColor, isWeekend && "opacity-60"].join(" ")}>{dayNumber}</p>
+    </button>
   );
 };
 
@@ -47,7 +54,7 @@ export const HorizontalDatePicker = ({ onSelectDate, selected }) => {
   return (
     <div className="flex flex-row items-center justify-center">
       {dates.map((date, index) => (
-        <Date key={index} date={date} onSelectDate={onSelectDate} selected={selected} />
+        <Date key={index} date={date} onSelectDate={onSelectDate} selected={selected} disabled={date.isSame(moment(), "day")} />
       ))}
     </div>
   );

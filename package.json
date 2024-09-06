@@ -12,11 +12,13 @@
     "start": "gatsby develop",
     "build": "gatsby build",
     "serve": "gatsby serve",
-    "clean": "gatsby clean"
+    "clean": "gatsby clean",
+    "setup": "node scripts/init_db.js"
   },
   "dependencies": {
     "@stripe/react-stripe-js": "^2.7.3",
     "@stripe/stripe-js": "^4.2.0",
+    "@supabase/supabase-js": "^2.45.3",
     "autoprefixer": "^10.4.20",
     "gatsby": "^5.13.5",
     "gatsby-plugin-image": "^3.13.1",

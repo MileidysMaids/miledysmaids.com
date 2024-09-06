@@ -30,9 +30,9 @@ const defaultValuesTest = {
 };
 
 export default function Component() {
-  const [currentStep, setCurrentStep] = React.useState(0);
-  // const methods = useForm({ shouldUseNativeValidation: true, defaultValues: defaultValuesTest });
-  const methods = useForm({ shouldUseNativeValidation: true, defaultValues: { cleaning_type: "Home" } });
+  const [currentStep, setCurrentStep] = React.useState(2);
+  const methods = useForm({ shouldUseNativeValidation: true, defaultValues: defaultValuesTest });
+  // const methods = useForm({ shouldUseNativeValidation: true, defaultValues: { cleaning_type: "Home" } });
 
   React.useEffect(() => {
     // Push the initial state or replace it if needed
@@ -51,6 +51,7 @@ export default function Component() {
   }, []);
 
   const handleSubmit = async (formData) => {
+    return;
     fetch("/api/booking/slots", {
       body: JSON.stringify(formData),
       method: "POST",

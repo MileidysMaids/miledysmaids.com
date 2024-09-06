@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# lR8a52DfJhmdKLaY
+
 # Set variables
 IMAGE_NAME="postgres"
 CONTAINER_NAME="postgres_container"
@@ -89,14 +91,20 @@ CREATE TYPE cleaning_service_type AS (
   instructions VARCHAR(255)
 );
 
+
+CREATE TYPE contact_type AS (
+  full_name VARCHAR(255),
+  phone VARCHAR(15),
+  email VARCHAR(255),
+  address address_type
+);
+
 CREATE TABLE slots (
   id SERIAL PRIMARY KEY,
-  slot_number INT NOT NULL,
-  phone VARCHAR(15) NOT NULL,
   day DATE NOT NULL,
-  address address_type NOT NULL,
+  slot_number INT NOT NULL,
+  contact contact_type NOT NULL,
   cleaning_service cleaning_service_type NOT NULL,
-  full_name VARCHAR(255) NOT NULL,
   FOREIGN KEY (day) REFERENCES days(day)
 );
 EOF

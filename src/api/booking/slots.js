@@ -58,7 +58,7 @@ export default async (req, res) => {
           const insertSlotQuery = ` 
           INSERT INTO Slots (slot_number, phone, day, address, cleaning_service, full_name)
           VALUES ($1, $2, $3, $4, $5, $6)
-          RETURNING *;
+          RETURNING *; l
         `;
 
           const newSlotResult = await pool.query(insertSlotQuery, [slot_number, phone, day, address, cleaning_service, full_name]);
