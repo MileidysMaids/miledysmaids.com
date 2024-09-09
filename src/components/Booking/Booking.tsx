@@ -4,11 +4,11 @@ import moment from "moment";
 import { useFormContext } from "react-hook-form";
 import { BedFrontIcon, BuildingIcon, DropletIcon, HomeIcon, RuleIcon, UserIcon, BathIcon, DoorIcon } from "@/icons/Icons";
 
-const times = ["8:00AM", "9:00AM", "10:00AM", "11:00AM", "12:00PM", "1:00PM", "2:00PM"];
+const times: string[] = ["8:00AM", "9:00AM", "10:00AM", "11:00AM", "12:00PM", "1:00PM", "2:00PM"];
 
 export const Booking = () => {
   const { getValues } = useFormContext();
-  const data = React.useMemo(getValues, []);
+  const data = React.useMemo<any>(getValues, []);
 
   const [selectedDate, setSelectedDate] = React.useState(moment().add(1, "days").format("MM/DD/YYYY")); // Default date is tomorrow
   const [selectedSlot, setSelectedSlot] = React.useState();

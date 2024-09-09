@@ -18,7 +18,7 @@ const InputCN = { className: "input input-bordered w-full max-w-xs" };
 
 export const Cleaning = ({ onNext }) => {
   const { register, reset, watch } = useFormContext();
-  const [selected, setSelected] = React.useState("Home");
+  const [selected, setSelected] = React.useState("Residential");
 
   const handleCardChange = (value) => {
     reset({ cleaning_type: value });
@@ -31,11 +31,13 @@ export const Cleaning = ({ onNext }) => {
         <label className="text-xl">Select the Cleaning Service You Need</label>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <Card selected={selected === "Home"} className={"flex cursor-pointer flex-col items-center justify-center gap-4 p-6 text-center"}>
+          <Card
+            selected={selected === "Residential"}
+            className={"flex cursor-pointer flex-col items-center justify-center gap-4 p-6 text-center"}>
             <HomeIcon className="h-12 w-12" />
-            <h1 className="text-xl font-semibold">Home</h1>
+            <h1 className="text-xl font-semibold">Residential</h1>
             <p className="text-muted-foreground">Get a quote for your residential cleaning needs.</p>
-            <button type="button" className="btn mt-4 w-full" onClick={() => handleCardChange("Home")}>
+            <button type="button" className="btn mt-4 w-full" onClick={() => handleCardChange("Residential")}>
               Select
             </button>
           </Card>
@@ -61,12 +63,12 @@ export const Cleaning = ({ onNext }) => {
 
         <div className="flex flex-col items-center justify-center gap-4">
           <div className="grid grid-cols-3 gap-4 py-10">
-            {(selected === "Home" || selected === "Office") && (
+            {(selected === "Residential" || selected === "Office") && (
               <div className="grid gap-2">
                 <Label>Square footage</Label>
                 <select
                   className="select select-bordered"
-                  {...register("square_feet", {
+                  {...register("service.square_feet", {
                     validate: (value) => value > 499 || "This field is required",
                   })}
                   defaultValue={0}>
@@ -81,12 +83,12 @@ export const Cleaning = ({ onNext }) => {
                 </select>
               </div>
             )}
-            {selected === "Home" && (
+            {selected === "Residential" && (
               <div className="grid gap-2">
                 <Label>Number of Bedrooms</Label>
                 <select
                   className="select select-bordered"
-                  {...register("bedroom_count", { value: 0, validate: (value) => value > 0 || "This field is required" })}>
+                  {...register("service.bedroom_count", { value: 0, validate: (value) => value > 0 || "This field is required" })}>
                   <option disabled value={0}>
                     Number of bedrooms
                   </option>
@@ -98,13 +100,13 @@ export const Cleaning = ({ onNext }) => {
                 </select>
               </div>
             )}
-            {(selected === "Home" || selected === "Office") && (
+            {(selected === "Residential" || selected === "Office") && (
               <div className="relative grid gap-2">
                 <Label>Number of Bathrooms</Label>
                 <select
                   defaultValue={0}
                   className="select select-bordered"
-                  {...register("bathroom_count", { value: 0, validate: (value) => value > 0 || "This field is required" })}>
+                  {...register("service.bathroom_count", { value: 0, validate: (value) => value > 0 || "This field is required" })}>
                   <option disabled value={0}>
                     Number of bathrooms
                   </option>
@@ -116,7 +118,7 @@ export const Cleaning = ({ onNext }) => {
                 </select>
                 {selected === "Office" && (
                   <label className="flex-1flex-row label-text absolute -bottom-14 flex gap-2">
-                    <input type="checkbox" {...register("has_multiple_toilets")} className="checkbox" />
+                    <input type="checkbox" {...register("service.has_multiple_toilets")} className="checkbox" />
                     These bathrooms have more than one toilet?
                   </label>
                 )}
@@ -130,7 +132,7 @@ export const Cleaning = ({ onNext }) => {
                   placeholder="Total number of toilets"
                   className="input input-bordered w-full max-w-xs"
                   min={0}
-                  {...register("toilet_count", {
+                  {...register("service.toilet_count", {
                     value: 0,
                     disabled: !watch("has_multiple_toilets"),
                     validate: (value) => value > 0 || "This field is required",
@@ -148,13 +150,13 @@ export const Cleaning = ({ onNext }) => {
             {selected === "Commercial" && (
               <div className="grid gap-2">
                 <Label htmlFor="phone">Phone</Label>
-                <input {...InputCN} id="phone" type="tel" placeholder="Phone" {...register("phone")} />
+                <input {...InputCN} id="phone" type="tel" placeholder="Phone" {...register("contact.phone")} />
               </div>
             )}
             {selected === "Commercial" && (
               <div className="grid gap-2">
                 <Label htmlFor="name">Company Name</Label>
-                <input {...InputCN} id="name" type="text" placeholder="Name" {...register("company_name")} />
+                <input {...InputCN} id="name" type="text" placeholder="Name" {...register("contact.company_name")} />
               </div>
             )}
           </div>

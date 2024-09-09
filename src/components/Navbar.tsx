@@ -1,5 +1,5 @@
 import React from "react";
-import { Logo } from "./Logo.jsx";
+import { Logo } from "./Logo.js";
 
 export const NavBar = ({ children, ...props }) => {
   return (

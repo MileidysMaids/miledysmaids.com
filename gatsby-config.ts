@@ -1,10 +1,10 @@
-const env = process.env.NODE_ENV;
-require("dotenv").config({ path: `.env.${process.env.NODE_ENV}` });
+import type { GatsbyConfig } from "gatsby";
+import dotenv from "dotenv";
 
-/**
- * @type {import('gatsby').GatsbyConfig}
- */
-module.exports = {
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
+
+export default {
+  graphqlTypegen: true,
   siteMetadata: {
     title: `Mileidy's Maids`,
     siteUrl: `https://www.yourdomain.tld`,
@@ -25,4 +25,4 @@ module.exports = {
     "gatsby-plugin-postcss",
     "gatsby-plugin-sitemap",
   ],
-};
+} as GatsbyConfig;

@@ -1,6 +1,7 @@
-import pool from "../db/db";
+import { prisma } from "../db/db";
+import type { FormValues } from "../../components/Booking/types";
 
-export default async (req, res) => {
+export default async (req: Request, res: Response) => {
   try {
     switch (req.method) {
       // Get all booked slots by day
@@ -33,7 +34,7 @@ export default async (req, res) => {
       }
 
       case "POST": {
-        const { slot_number, full_name, phone, day, address, cleaning_service } = req.body;
+        const { slot_number, full_name, phone, day, address, cleaning_service } = req.body as unknown as FormValues;
 
         const requiredFields = Object.keys(req.body);
         if (requiredFields.some((field) => !req.body[field])) {

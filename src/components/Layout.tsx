@@ -1,7 +1,9 @@
 import React from "react";
-import { Logo } from "./Logo.jsx";
+import { Logo } from "./Logo";
 
-export const NavBar = ({ children, ...props }) => {
+export type LayoutClassNames = { injectedClassNames: string };
+
+export const NavBar = ({ children, ...props }: { children?: React.ReactNode; [key: string]: any }) => {
   return (
     <div className="absolute left-0 top-0 z-10 flex w-dvw justify-center">
       <div className="drawer" {...props}>
@@ -10,7 +12,7 @@ export const NavBar = ({ children, ...props }) => {
         <div className="drawer-content flex h-full flex-col">
           <div className="navbar h-full w-full bg-transparent md:px-10">
             <div className="flex-none lg:hidden">
-              {children?.length && (
+              {children && (
                 <label htmlFor="my-drawer-3" aria-label="open sidebar" className="btn btn-square btn-ghost">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block h-6 w-6 stroke-current">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
@@ -74,10 +76,10 @@ export const Footer = () => {
   );
 };
 
-export const Layout = ({ children }) => {
+export const Layout = ({ children }: React.PropsWithChildren) => {
   // Inject styles only to the first children element
   const childrenArray = React.Children.toArray(children);
-  const firstChildrenWithStyles = React.cloneElement(childrenArray[0], {
+  const firstChildrenWithStyles = React.cloneElement(childrenArray[0] as React.ReactElement, {
     injectedClassNames: "pt-20 md:pt-20 flex-1 ",
   });
   const childrenWithInjectedStyles = [firstChildrenWithStyles, ...childrenArray.slice(1)];

@@ -1,20 +1,27 @@
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import "@/styles/background.css";
-import landing_page_foto_1 from "@/images/landing-page-1.jpg";
-import landing_page_foto_2 from "@/images/landing-page-2.jpg";
-import landing_page_foto_3 from "@/images/landing-page-3.jpg";
-import shine from "../images/svg/shine.svg";
-import { Script } from "gatsby";
 import { useEstimate } from "@/hooks/useEstimate";
+import shine from "../images/svg/shine.svg";
+import landing_page_photo_1 from "@/images/landing-page-1.jpg";
+import landing_page_photo_2 from "@/images/landing-page-2.jpg";
+import landing_page_photo_3 from "@/images/landing-page-3.jpg";
+import { PageProps } from "gatsby";
+import { LayoutClassNames } from "@/components/Layout";
 
-const defaultValues = {
-  bedroom_count: 1,
-  bathroom_count: 1,
-  square_feet: 500,
+type FormValues = {
+  bedroom_count: number;
+  bathroom_count: number;
+  square_feet: number;
 };
 
-export default function IndexPage({ injectedClassNames }) {
+const defaultValues: FormValues = {
+  bedroom_count: 1,
+  bathroom_count: 1,
+  square_feet: 1000,
+};
+
+export default function IndexPage({ injectedClassNames }: LayoutClassNames) {
   const { estimate, calculate } = useEstimate({ defaultValues });
   const { register, handleSubmit } = useForm({ defaultValues });
 
@@ -23,12 +30,7 @@ export default function IndexPage({ injectedClassNames }) {
     calculate(defaultValues);
   }, []);
 
-  const onSubmit = (data) => {
-    // Convert string values to numbers
-    Object.keys(data).forEach((key) => {
-      data[key] = Number(data[key]);
-    });
-
+  const onSubmit = (data: FormValues) => {
     calculate({ ...data });
   };
 
@@ -52,7 +54,7 @@ export default function IndexPage({ injectedClassNames }) {
 
         <form onChange={handleSubmit(onSubmit)} className="flex w-full flex-col items-center justify-center gap-5 py-10 md:flex-row">
           <select
-            {...register("bedroom_count")}
+            {...register("bedroom_count", { valueAsNumber: true })}
             className="select select-secondary w-full max-w-xs bg-secondary/10 font-semibold text-secondary">
             <option disabled value={0}>
               Number of bedrooms
@@ -65,7 +67,7 @@ export default function IndexPage({ injectedClassNames }) {
           </select>
 
           <select
-            {...register("bathroom_count")}
+            {...register("bathroom_count", { valueAsNumber: true })}
             className="select select-secondary w-full max-w-xs bg-secondary/10 font-semibold text-secondary">
             <option disabled value={0}>
               Number of bathrooms
@@ -78,7 +80,7 @@ export default function IndexPage({ injectedClassNames }) {
           </select>
 
           <select
-            {...register("square_feet")}
+            {...register("square_feet", { valueAsNumber: true })}
             className="select select-secondary w-full max-w-xs bg-secondary/10 font-semibold text-secondary">
             <option disabled value={0}>
               Estimated square feet
@@ -119,9 +121,9 @@ export default function IndexPage({ injectedClassNames }) {
         </a>
 
         <div className="my-10 flex flex-row sm:hidden sm:gap-10">
-          <img className="mask mask-squircle relative left-0 w-96 md:-top-10" src={landing_page_foto_1} alt="cleaning service" />
-          <img className="relative left-0 top-0 hidden w-96 rounded-full md:block" src={landing_page_foto_2} alt="cleaning service" />
-          <img className="relative left-0 top-10 hidden w-96 rounded-full md:block" src={landing_page_foto_3} alt="cleaning service" />
+          <img className="mask mask-squircle relative left-0 w-96 md:-top-10" src={landing_page_photo_1} alt="cleaning service" />
+          <img className="relative left-0 top-0 hidden w-96 rounded-full md:block" src={landing_page_photo_2} alt="cleaning service" />
+          <img className="relative left-0 top-10 hidden w-96 rounded-full md:block" src={landing_page_photo_3} alt="cleaning service" />
         </div>
       </section>
 
