@@ -1,7 +1,10 @@
 import type { GatsbyConfig } from "gatsby";
 import dotenv from "dotenv";
 
-dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
+const paths = [".env.local"];
+if (process.env.NODE_ENV === "development") paths.push(".env.development");
+if (process.env.NODE_ENV === "production") paths.push(".env");
+dotenv.config({ path: paths });
 
 export default {
   graphqlTypegen: true,
