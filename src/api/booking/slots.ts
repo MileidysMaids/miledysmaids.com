@@ -1,5 +1,10 @@
 import { prisma } from "../db/db";
-import type { FormValues } from "../../components/Booking/types";
+import type { FormValues } from "@/types/bookingTypes";
+import type { Request, Response } from "express";
+
+type day = {
+  date: string;
+};
 
 export default async (req: Request, res: Response) => {
   try {
@@ -7,97 +12,63 @@ export default async (req: Request, res: Response) => {
       // Get all booked slots by day
       case "GET": {
         // Extract query parameters from the request
-        let { date } = req.query;
+        let { date } = req.query as day;
 
         // Validate date parameter
         if (!date) return res.status(400).json({ error: "Date parameter is required" });
 
         try {
           // Query to get all slots for the given date
-          const query = `
-          SELECT *
-          FROM Slots
-          WHERE day = $1;
-        `;
-
-          const result = await pool.query(query, [date]);
-
-          // Extract the booked slots for the given date from the query result
-          const bookedSlots = [];
-          result.rows.map((row) => bookedSlots.push(row.slot_number));
+          const bookedSlots = await prisma.days.findMany({
+            where: { day: new Date(date) },
+            select: { Slots: { select: { slot_number: true } } },
+          });
 
           return res.json({ bookedSlots });
         } catch (error) {
           console.error("Error fetching booked slots by day:", error);
-          return res.status(500).json({ error: "Internal Server Error" });
+          return res.status(500).json({ message: "Error fetching booked slots by day", error });
         }
       }
 
       case "POST": {
-        const { slot_number, full_name, phone, day, address, cleaning_service } = req.body as unknown as FormValues;
+        const { address, contact, service, slot } = JSON.parse(req.body);
 
-        const requiredFields = Object.keys(req.body);
-        if (requiredFields.some((field) => !req.body[field])) {
-          return res.status(400).json({ error: "Missing required fields" });
-        }
+        // Step 1: Create or find the customer based on their contact info (email or phone)
+        const customer = await prisma.customer.upsert({
+          where: { email: contact.email },
+          update: {
+            fullName: contact.full_name,
+            phone: contact.phone,
+          },
+          create: {
+            fullName: contact.full_name,
+            phone: contact.phone,
+            email: contact.email,
+          },
+        });
 
-        try {
-          // Check if the slot number already exists for the given day
-          const checkSlotQuery = `
-          SELECT COUNT(*) AS count
-          FROM Slots
-          WHERE day = $1 AND slot_number = $2;
-        `;
-
-          const slotResult = await pool.query(checkSlotQuery, [day, slot_number]);
-
-          if (slotResult.rows[0].count > 0) {
-            return res.status(400).json({ error: "Slot number already exists for the given day" });
-          }
-
-          // Insert a new slot
-          const insertSlotQuery = ` 
-          INSERT INTO Slots (slot_number, phone, day, address, cleaning_service, full_name)
-          VALUES ($1, $2, $3, $4, $5, $6)
-          RETURNING *; l
-        `;
-
-          const newSlotResult = await pool.query(insertSlotQuery, [slot_number, phone, day, address, cleaning_service, full_name]);
-          const newSlot = newSlotResult.rows[0];
-
-          // Check if a row for the given day already exists in the "Days" table
-          const checkDayQuery = `
-          SELECT COUNT(*) AS count
-          FROM days
-          WHERE day = $1;
-        `;
-
-          const dayResult = await pool.query(checkDayQuery, [day]);
-
-          if (dayResult.rows[0].count == 0) {
-            // If the row for the given day doesn't exist, insert a new row
-            const insertDayQuery = `
-            INSERT INTO days (day, booked_slots)
-            VALUES ($1, 1);
-          `;
-
-            await pool.query(insertDayQuery, [day]);
-          } else {
-            // If the row for the given day exists, update the booked_slots value
-            const updateDayQuery = `
-            UPDATE days
-            SET booked_slots = booked_slots + 1
-            WHERE day = $1;
-          `;
-
-            await pool.query(updateDayQuery, [day]);
-          }
-
-          res.status(201).json({ success: true, slot: newSlot });
-        } catch (error) {
-          console.error("Error posting a new slot:", error);
-          res.status(500).json({ error: "Internal Server Error" });
-        }
+        const createdService = await prisma.service.create({
+          data: {
+            cleaningCategory: service.cleaning_category,
+            cleaningSubCategory: service.cleaning_sub_category,
+            bedroomCount: service.bedroom_count,
+            bathroomCount: service.bathroom_count,
+            windowCount: service.window_count,
+            ovenCount: service.oven_count,
+            includesBaseboardCleaning: service.includes_baseboard_cleaning,
+            includesKitchenCabinetCleaning: service.includes_kitchen_cabinet_cleaning,
+            includesBathroomCabinetCleaning: service.includes_bathroom_cabinet_cleaning,
+            includesLinenChange: service.includes_linen_change,
+            includesBasement: service.includes_basement,
+            petPresent: service.pet_present,
+            squareFeet: service.square_feet,
+            packageType: service.package_type,
+            serviceFrequency: service.service_frequency,
+            refrigeratorCount: service.refrigerator_count,
+            microwaveCount: service.microwave_count,
+          },
+        });
       }
 
       default: {
@@ -106,6 +77,6 @@ export default async (req: Request, res: Response) => {
     }
   } catch (error) {
     console.error("Error posting a new slot:", error);
-    res.status(500).json({ message: "Internal Server Error", error });
+    return res.status(500).json({ message: "Internal Server Error", error });
   }
 };

@@ -7,12 +7,19 @@
   "keywords": [
     "gatsby"
   ],
+  "resolutions": {
+    "dotenv": "^16.0.0"
+  },
+  "engines": {
+    "yarn": ">=1.22.0"
+  },
   "scripts": {
     "dev": "gatsby develop -H 0.0.0.0",
     "start": "gatsby develop",
     "build": "gatsby build",
     "serve": "gatsby serve",
     "clean": "gatsby clean",
+    "db:generate": "env-cmd -f .env yarn prisma generate",
     "setup": "node scripts/init_db.js"
   },
   "dependencies": {
@@ -20,10 +27,12 @@
     "@stripe/react-stripe-js": "^2.7.3",
     "@stripe/stripe-js": "^4.2.0",
     "@supabase/supabase-js": "^2.45.3",
+    "@types/express": "^4.17.21",
     "@types/node": "^22.5.4",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.20",
+    "dotenv": "^16.4.5",
     "gatsby": "^5.13.5",
     "gatsby-plugin-image": "^3.13.1",
     "gatsby-plugin-postcss": "^6.13.1",
@@ -44,7 +53,9 @@
     "typescript": "^5.5.4"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "daisyui": "^4.12.10",
+    "env-cmd": "^10.1.0",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.5"
   }
