@@ -1,61 +1,83 @@
 import React from "react";
 import { HomeIcon, BuildingIcon, StoreIcon } from "@/icons/Icons";
 import { useFormContext } from "react-hook-form";
+import { facilitiesSubCategories, residentialSubCategories, workplaceSubCategories } from "@/utils/calculateEstimate";
+import { CleaningCategory } from "@/types/cleaningTypes";
 
-const Card = ({ children, className, selected, ...props }) => (
-  <div className={["card w-96 bg-base-100 shadow-xl transition-colors", selected ? "bg-primary text-white" : ""].join(" ")} {...props}>
-    <div className={["card-body", className].join(" ")}>{children}</div>
-  </div>
-);
-
-const Label = ({ children, className, ...props }) => (
-  <label className={["label", className].join(" ")} {...props}>
-    {children}
-  </label>
-);
+const Card = (props: { children: React.ReactNode; className?: string; selected?: boolean }) => {
+  const { children, className, selected, ...rest } = props;
+  return (
+    <div className={["card w-96 bg-base-100 shadow-xl transition-colors", selected ? "bg-primary text-white" : ""].join(" ")} {...rest}>
+      <div className={["card-body", className].join(" ")}>{children}</div>
+    </div>
+  );
+};
 
 const InputCN = { className: "input input-bordered w-full max-w-xs" };
 
-export const Cleaning = ({ onNext }) => {
+export const Cleaning = () => {
   const { register, reset, watch } = useFormContext();
-  const [selected, setSelected] = React.useState("Residential");
+  const [selected, setSelected] = React.useState<CleaningCategory>();
 
-  const handleCardChange = (value) => {
-    reset({ cleaning_type: value });
+  const handleCardChange = (value: CleaningCategory) => {
+    reset({ service: { cleaning_category: value } });
     setSelected(value);
   };
 
   return (
     <div className={["mt-10 h-full flex-1"].join(" ")}>
       <div className="flex flex-col items-center gap-10">
-        <label className="text-xl">Select the Cleaning Service You Need</label>
+        <label className="label text-xl">Select the Cleaning Service You Need</label>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Card
-            selected={selected === "Residential"}
+            selected={selected === CleaningCategory.Residential}
             className={"flex cursor-pointer flex-col items-center justify-center gap-4 p-6 text-center"}>
             <HomeIcon className="h-12 w-12" />
             <h1 className="text-xl font-semibold">Residential</h1>
             <p className="text-muted-foreground">Get a quote for your residential cleaning needs.</p>
-            <button type="button" className="btn mt-4 w-full" onClick={() => handleCardChange("Residential")}>
+            <div className="flex flex-row flex-wrap justify-center gap-1">
+              {residentialSubCategories.map((sub_category) => (
+                <span className="badge" key={sub_category}>
+                  {sub_category}
+                </span>
+              ))}
+            </div>
+            <button type="button" className="btn mt-4 w-full" onClick={() => handleCardChange(CleaningCategory.Residential)}>
               Select
             </button>
           </Card>
 
-          <Card selected={selected === "Office"} className="flex cursor-pointer flex-col items-center gap-4 p-6">
+          <Card selected={selected === CleaningCategory.Commercial} className="flex cursor-pointer flex-col items-center gap-4 p-6">
             <BuildingIcon className="h-12 w-12" />
-            <h2 className="text-xl font-semibold">Office</h2>
+
+            <h2 className="text-xl font-semibold">Commercial</h2>
             <p className="text-muted-foreground text-center">Keep your workspace clean and professional.</p>
-            <button type="button" className="btn mt-4 w-full" onClick={() => handleCardChange("Office")}>
+            <div className="flex flex-row flex-wrap justify-center gap-1">
+              {workplaceSubCategories.map((sub_category) => (
+                <span className="badge" key={sub_category}>
+                  {sub_category}
+                </span>
+              ))}
+            </div>
+            <button type="button" className="btn mt-4 w-full" onClick={() => handleCardChange(CleaningCategory.Commercial)}>
               Select
             </button>
           </Card>
 
-          <Card selected={selected === "Commercial"} className="flex cursor-pointer flex-col items-center gap-4 p-6">
+          <Card selected={selected === CleaningCategory.Other} className="flex cursor-pointer flex-col items-center gap-4 p-6">
             <StoreIcon className="h-12 w-12" />
-            <h2 className="text-xl font-semibold">Commercial</h2>
-            <p className="text-muted-foreground text-center">Maintain a clean and professional environment.</p>
-            <button type="button" className="btn mt-4 w-full" onClick={() => handleCardChange("Commercial")}>
+            <h2 className="text-xl font-semibold">Facilities & Events</h2>
+            <p className="text-muted-foreground text-center">Keep your facilities and event spaces clean and safe.</p>
+            <div className="flex flex-row flex-wrap justify-center gap-1">
+              {facilitiesSubCategories.map((sub_category) => (
+                <span className="badge" key={sub_category}>
+                  {sub_category}
+                </span>
+              ))}
+            </div>
+
+            <button type="button" className="btn mt-4 w-full" onClick={() => handleCardChange(CleaningCategory.Other)}>
               Select
             </button>
           </Card>
@@ -63,9 +85,9 @@ export const Cleaning = ({ onNext }) => {
 
         <div className="flex flex-col items-center justify-center gap-4">
           <div className="grid grid-cols-3 gap-4 py-10">
-            {(selected === "Residential" || selected === "Office") && (
+            {(selected === CleaningCategory.Residential || selected === CleaningCategory.Commercial) && (
               <div className="grid gap-2">
-                <Label>Square footage</Label>
+                <label className="label">Square footage</label>
                 <select
                   className="select select-bordered"
                   {...register("service.square_feet", {
@@ -83,9 +105,9 @@ export const Cleaning = ({ onNext }) => {
                 </select>
               </div>
             )}
-            {selected === "Residential" && (
+            {selected === CleaningCategory.Residential && (
               <div className="grid gap-2">
-                <Label>Number of Bedrooms</Label>
+                <label className="label">Number of Bedrooms</label>
                 <select
                   className="select select-bordered"
                   {...register("service.bedroom_count", { value: 0, validate: (value) => value > 0 || "This field is required" })}>
@@ -100,9 +122,9 @@ export const Cleaning = ({ onNext }) => {
                 </select>
               </div>
             )}
-            {(selected === "Residential" || selected === "Office") && (
+            {(selected === CleaningCategory.Residential || selected === CleaningCategory.Commercial) && (
               <div className="relative grid gap-2">
-                <Label>Number of Bathrooms</Label>
+                <label className="label">Number of Bathrooms</label>
                 <select
                   defaultValue={0}
                   className="select select-bordered"
@@ -116,7 +138,7 @@ export const Cleaning = ({ onNext }) => {
                     </option>
                   ))}
                 </select>
-                {selected === "Office" && (
+                {selected === CleaningCategory.Commercial && (
                   <label className="flex-1flex-row label-text absolute -bottom-14 flex gap-2">
                     <input type="checkbox" {...register("service.has_multiple_toilets")} className="checkbox" />
                     These bathrooms have more than one toilet?
@@ -124,9 +146,9 @@ export const Cleaning = ({ onNext }) => {
                 )}
               </div>
             )}
-            {selected === "Office" && (
+            {selected === CleaningCategory.Commercial && (
               <div className="grid gap-2">
-                <Label>Number of Toilets</Label>
+                <label className="label">Number of Toilets</label>
                 <input
                   type="number"
                   placeholder="Total number of toilets"
@@ -141,21 +163,27 @@ export const Cleaning = ({ onNext }) => {
               </div>
             )}
 
-            {selected === "Commercial" && (
+            {selected === CleaningCategory.Other && (
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <label className="label" htmlFor="email">
+                  Email
+                </label>
                 <input {...InputCN} id="email" type="email" placeholder="Email" {...register("email")} />
               </div>
             )}
-            {selected === "Commercial" && (
+            {selected === CleaningCategory.Other && (
               <div className="grid gap-2">
-                <Label htmlFor="phone">Phone</Label>
+                <label className="label" htmlFor="phone">
+                  Phone
+                </label>
                 <input {...InputCN} id="phone" type="tel" placeholder="Phone" {...register("contact.phone")} />
               </div>
             )}
-            {selected === "Commercial" && (
+            {selected === CleaningCategory.Other && (
               <div className="grid gap-2">
-                <Label htmlFor="name">Company Name</Label>
+                <label className="label" htmlFor="name">
+                  Company Name
+                </label>
                 <input {...InputCN} id="name" type="text" placeholder="Name" {...register("contact.company_name")} />
               </div>
             )}

@@ -1,22 +1,23 @@
-import { CleaningItems } from "@/utils/calculateEstimate";
+import { CleaningItems } from "@/types/cleaningTypes";
 
-type Contact = {
+export type Contact = {
   full_name: string;
   phone: string;
   email?: string;
   company_name?: string;
 };
 
-type Slot = {
-  date: string;
+export type Slot = {
+  time: string;
+  date: Date;
   slot_number: number;
 };
 
-type Extras = {
+export type Extras = {
   instructions?: string;
 };
 
-type Address = {
+export type Address = {
   street: string;
   unit?: string;
   city: string;

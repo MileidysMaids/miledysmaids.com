@@ -3,16 +3,18 @@ import { HorizontalDatePicker } from "../HorizontalDatePicker";
 import moment from "moment";
 import { useFormContext } from "react-hook-form";
 import { BedFrontIcon, BuildingIcon, DropletIcon, HomeIcon, RuleIcon, UserIcon, BathIcon, DoorIcon } from "@/icons/Icons";
+import { FormValues, Slot } from "@/types/bookingTypes";
+import { CleaningCategory } from "@/types/cleaningTypes";
 
 const times: string[] = ["8:00AM", "9:00AM", "10:00AM", "11:00AM", "12:00PM", "1:00PM", "2:00PM"];
 
 export const Booking = () => {
-  const { getValues } = useFormContext();
-  const data = React.useMemo<any>(getValues, []);
+  const { getValues, setValue } = useFormContext();
+  const { contact, service, address } = React.useMemo(getValues as unknown as () => FormValues, []);
 
-  const [selectedDate, setSelectedDate] = React.useState(moment().add(1, "days").format("MM/DD/YYYY")); // Default date is tomorrow
-  const [selectedSlot, setSelectedSlot] = React.useState();
-  const [bookedSlots, setBookedSlots] = React.useState([]);
+  const [selectedDate, setSelectedDate] = React.useState<Date>(new Date(Date.now() + 1000 * 60 * 60 * 24)); // Default date is tomorrow
+  const [selectedSlot, setSelectedSlot] = React.useState<Slot>();
+  const [bookedSlots, setBookedSlots] = React.useState<string[]>([]);
   const [bookedDays, setBookedDays] = React.useState([]);
 
   React.useEffect(() => {
@@ -22,10 +24,14 @@ export const Booking = () => {
   }, []);
 
   React.useEffect(() => {
-    fetch(`/api/booking/slots?date=${selectedDate}`)
-      .then((res) => res.json())
-      .then(bookedSlots);
+    // fetch(`/api/booking/slots?date=${selectedDate}`)
+    //   .then((res) => res.json())
+    //   .then(({ bookedSlots }) => setBookedSlots(bookedSlots));
   }, [selectedDate]);
+
+  React.useEffect(() => {
+    setValue("slot", selectedSlot);
+  }, [selectedSlot]);
 
   return (
     <div className="flex flex-col items-center justify-center gap-14 pt-10">
@@ -41,18 +47,22 @@ export const Booking = () => {
                   <span className="flex flex-row items-center gap-2">
                     <UserIcon className="h-6 w-6" />
                     <div>
-                      <p className="font-bold">{data.full_name}</p>
-                      <p>{data.phone}</p>
+                      <p className="font-bold">{contact.full_name}</p>
+                      <p>{contact.phone}</p>
                     </div>
                   </span>
 
                   <span className="flex flex-row items-center gap-2">
-                    {data.cleaning_type === "Home Cleaning" ? <HomeIcon className="h-6 w-6" /> : <BuildingIcon className="h-6 w-6" />}
+                    {service.cleaning_category === CleaningCategory.Residential ? (
+                      <HomeIcon className="h-6 w-6" />
+                    ) : (
+                      <BuildingIcon className="h-6 w-6" />
+                    )}
                     <div className="flex flex-col">
-                      <span className="font-bold">{data.cleaning_type}</span>
+                      <span className="font-bold">{service.cleaning_category}</span>
                       <p>
-                        {data.address} {data.unit} <br />
-                        {data.city} {data.state} {data.zip}
+                        {address.street} {address.unit} <br />
+                        {address.city} {address.state} {address.zip}
                       </p>
                     </div>
                   </span>
@@ -60,30 +70,30 @@ export const Booking = () => {
                   <span className="flex flex-row items-center gap-2">
                     <RuleIcon className="h-6 w-6" />
                     <span className="font-bold">
-                      {data.square_feet - 499} ~ {data.square_feet} /sqft
+                      {service.square_feet - 499} ~ {service.square_feet} /sqft
                     </span>
                   </span>
-                  {data.bedroom_count && (
+                  {service.bedroom_count && (
                     <span className="flex flex-row items-center gap-2">
                       <BedFrontIcon className="h-6 w-6" />
                       <span className="font-bold">
-                        {data.bedroom_count} Bedroom{data.bedroom_count > 1 ? "s" : ""}
+                        {service.bedroom_count} Bedroom{service.bedroom_count > 1 ? "s" : ""}
                       </span>
                     </span>
                   )}
                   <span className="flex flex-row items-center gap-2">
-                    {data.cleaning_type === "Home" && <BathIcon className="h-6 w-6" />}
-                    {data.cleaning_type === "Office" && <DoorIcon className="h-6 w-6" />}
+                    {service.cleaning_category === CleaningCategory.Residential && <BathIcon className="h-6 w-6" />}
+                    {service.cleaning_category === CleaningCategory.Commercial && <DoorIcon className="h-6 w-6" />}
                     <span className="font-bold">
-                      {data.bathroom_count} Bathroom{data.bathroom_count > 1 ? "s" : ""}
+                      {service.bathroom_count} Bathroom{(service.bathroom_count ?? 0) > 1 ? "s" : ""}
                     </span>
                   </span>
 
-                  {data.has_multiple_toilets && (
+                  {service.has_multiple_toilets && (
                     <span className="flex flex-row items-center gap-2">
                       <DropletIcon className="h-6 w-6" />
                       <span className="font-bold">
-                        {data.toilet_count} Toilet{data.toilet_count > 1 ? "s" : ""}
+                        {service.toilet_count} Toilet{(service.toilet_count ?? 0) > 1 ? "s" : ""}
                       </span>
                     </span>
                   )}
@@ -101,7 +111,7 @@ export const Booking = () => {
                 <button
                   key={index}
                   type="button"
-                  onClick={() => setSelectedSlot({ index, time })}
+                  onClick={() => setSelectedSlot({ slot_number: index, time, date: selectedDate })}
                   className={["btn btn-outline btn-wide text-lg", selectedSlot?.time === time && "btn-active scale-105"].join(" ")}>
                   {time}
                 </button>
@@ -122,18 +132,22 @@ export const Booking = () => {
               <span className="flex flex-row items-center gap-2">
                 <UserIcon className="h-6 w-6" />
                 <div>
-                  <p className="font-bold">{data.full_name}</p>
-                  <p>{data.phone}</p>
+                  <p className="font-bold">{contact.full_name}</p>
+                  <p>{contact.phone}</p>
                 </div>
               </span>
 
               <span className="flex flex-row items-center gap-2">
-                {data.cleaning_type === "Home Cleaning" ? <HomeIcon className="h-6 w-6" /> : <BuildingIcon className="h-6 w-6" />}
+                {service.cleaning_category === CleaningCategory.Residential ? (
+                  <HomeIcon className="h-6 w-6" />
+                ) : (
+                  <BuildingIcon className="h-6 w-6" />
+                )}
                 <div className="flex flex-col">
-                  <span className="font-bold">{data.cleaning_type}</span>
+                  <span className="font-bold">{service.cleaning_category}</span>
                   <p>
-                    {data.address} {data.unit} <br />
-                    {data.city} {data.state} {data.zip}
+                    {address.street} {address.unit} <br />
+                    {address.city} {address.state} {address.zip}
                   </p>
                 </div>
               </span>
@@ -141,30 +155,30 @@ export const Booking = () => {
               <span className="flex flex-row items-center gap-2">
                 <RuleIcon className="h-6 w-6" />
                 <span className="font-bold">
-                  {data.square_feet - 499} ~ {data.square_feet} /sqft
+                  {service.square_feet - 499} ~ {service.square_feet} /sqft
                 </span>
               </span>
-              {data.bedroom_count && (
+              {service.bedroom_count && (
                 <span className="flex flex-row items-center gap-2">
                   <BedFrontIcon className="h-6 w-6" />
                   <span className="font-bold">
-                    {data.bedroom_count} Bedroom{data.bedroom_count > 1 ? "s" : ""}
+                    {service.bedroom_count} Bedroom{service.bedroom_count > 1 ? "s" : ""}
                   </span>
                 </span>
               )}
               <span className="flex flex-row items-center gap-2">
-                {data.cleaning_type === "Home" && <BathIcon className="h-6 w-6" />}
-                {data.cleaning_type === "Office" && <DoorIcon className="h-6 w-6" />}
+                {service.cleaning_category === CleaningCategory.Residential && <BathIcon className="h-6 w-6" />}
+                {service.cleaning_category === CleaningCategory.Commercial && <DoorIcon className="h-6 w-6" />}
                 <span className="font-bold">
-                  {data.bathroom_count} Bathroom{data.bathroom_count > 1 ? "s" : ""}
+                  {service.bathroom_count} Bathroom{(service.bathroom_count ?? 0) > 1 ? "s" : ""}
                 </span>
               </span>
 
-              {data.has_multiple_toilets && (
+              {service.has_multiple_toilets && (
                 <span className="flex flex-row items-center gap-2">
                   <DropletIcon className="h-6 w-6" />
                   <span className="font-bold">
-                    {data.toilet_count} Toilet{data.toilet_count > 1 ? "s" : ""}
+                    {service.toilet_count} Toilet{(service.toilet_count ?? 0) > 1 ? "s" : ""}
                   </span>
                 </span>
               )}
@@ -175,7 +189,9 @@ export const Booking = () => {
                 <label htmlFor="modal" className="btn btn-ghost">
                   Cancel
                 </label>
-                <button className="btn btn-primary">Confirm</button>
+                <button type="submit" className="btn btn-primary">
+                  Confirm
+                </button>
               </div>
             </div>
           </div>

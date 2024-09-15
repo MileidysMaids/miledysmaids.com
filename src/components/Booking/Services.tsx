@@ -21,25 +21,42 @@ import {
   BuildingIcon,
   DoorIcon,
 } from "@/icons/Icons";
+import { Step } from ".";
+import { CleaningCategory, CleaningItems, CleaningItemsKeys } from "@/types/cleaningTypes";
+import { FormValues } from "@/types/bookingTypes";
 
-const Button = ({ children, className, ...props }) => (
-  <button type="button" className={["btn btn-sm", className].join(" ")} {...props}>
-    {children}
-  </button>
-);
-
-const Card = ({ children, className, ...props }) => (
+const Card = ({ children, className, ...props }: React.ComponentProps<"div">) => (
   <div className="card border bg-base-100 shadow-xl" {...props}>
     <div className={["card-body", className].join(" ")}>{children}</div>
   </div>
 );
 
-const Service = ({ option_name, label, handleOptionChange, map, price, per_square, Icon, type }) => {
+type ServiceOption = {
+  label: string;
+  type: "count" | "boolean";
+  option_name: CleaningItemsKeys;
+  Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  price: number;
+};
+
+interface ServiceProps {
+  label: string;
+  type: "count" | "boolean";
+  option_name: CleaningItemsKeys;
+  price: number;
+  handleOptionChange: (option_name: CleaningItemsKeys, value: any) => void;
+  map: CleaningItems;
+  per_square?: boolean;
+  Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+}
+
+const Service = ({ option_name, label, handleOptionChange, map, price, per_square, Icon, type }: ServiceProps) => {
   const { register, setValue } = useFormContext();
+  const option_value: number = map[option_name] as number;
 
-  const value = map[option_name] ? Math.max(map[option_name], 0) : 0;
+  const value = option_value ? Math.max(option_value, 0) : 0;
 
-  const handleOnClick = (option_name, operation) => {
+  const handleOnClick = (option_name: CleaningItemsKeys, operation: "sum" | "subtract") => {
     if (operation === "sum") {
       handleOptionChange(option_name, value + 1);
       setValue(option_name, value + 1);
@@ -54,22 +71,22 @@ const Service = ({ option_name, label, handleOptionChange, map, price, per_squar
     <div
       className={[
         "card flex aspect-square cursor-pointer select-none flex-col items-center justify-center gap-2 rounded-lg border p-4 text-center transition-all",
-        map[option_name] > 0 ? "bg-primary text-white" : "",
+        option_value > 0 ? "bg-primary text-white" : "",
       ].join(" ")}
-      onClick={() => type === "boolean" && handleOptionChange(option_name, !map[option_name])}>
+      onClick={() => type === "boolean" && handleOptionChange(option_name, !option_value)}>
       {Icon && <Icon className="h-12 w-12" />}
       {type === "count" && (
         <div className="flex items-center gap-2">
-          <Button className="btn-circle p-1" onClick={() => handleOnClick(option_name, "subtract")}>
+          <button type="button" className="btn btn-circle btn-sm p-1" onClick={() => handleOnClick(option_name, "subtract")}>
             <MinusIcon className="h-5 w-5" />
-          </Button>
+          </button>
 
           <span className="text-xl font-bold">{value}</span>
 
-          <Button className="btn-circle p-1" onClick={() => handleOnClick(option_name, "sum")}>
+          <button type="button" className="btn btn-circle btn-sm p-1" onClick={() => handleOnClick(option_name, "sum")}>
             <PlusIcon className="h-5 w-5" />
-          </Button>
-          <input type="range" defaultValue={0} min={0} max={10} className="hidden" {...register(option_name)} />
+          </button>
+          <input type="range" defaultValue={0} min={0} max={10} className="hidden" {...register(`service.${option_name}`)} />
         </div>
       )}
       <span>{label}</span>
@@ -79,7 +96,7 @@ const Service = ({ option_name, label, handleOptionChange, map, price, per_squar
       <span
         className={[
           "absolute bottom-7 font-bold text-white duration-300",
-          type === "boolean" && map[option_name] > 0 ? "opacity-100" : "opacity-0",
+          type === "boolean" && option_value > 0 ? "opacity-100" : "opacity-0",
         ].join(" ")}>
         Yes
       </span>
@@ -87,61 +104,67 @@ const Service = ({ option_name, label, handleOptionChange, map, price, per_squar
   );
 };
 
-export const Services = ({ onNext }) => {
+export const Services = ({ onNext }: Step) => {
   const { calculate, estimate, prices } = useEstimate();
   const { register, getValues } = useFormContext();
-  // const { register } = useForm();
 
-  const data = React.useMemo(getValues, [getValues]);
-  const [customOptions, setCustomOptions] = React.useState({ ...data });
+  const { service } = React.useMemo(getValues as unknown as () => FormValues, [getValues]);
+  const [customOptions, setCustomOptions] = React.useState({ ...service });
 
   React.useEffect(() => {
     calculate(customOptions);
   }, [customOptions]);
 
-  const handleOptionChange = (option, value) => {
+  const handleOptionChange = (option: CleaningItemsKeys, value: any) => {
     setCustomOptions((prev) => ({ ...prev, [option]: value }));
   };
 
   const options = React.useMemo(
-    () => [
-      { label: "Windows", type: "count", option_name: "window_count", Icon: WindowIcon, price: prices["windows_cost"] },
-      { label: "Microwaves", type: "count", option_name: "microwave_count", Icon: MicrowaveIcon, price: prices["microwave_cost"] },
-      { label: "Ovens", type: "count", option_name: "oven_count", Icon: CookingPotIcon, price: prices["oven_cost"] },
-      {
-        label: "Refrigerators",
-        type: "count",
-        option_name: "refrigerator_count",
-        Icon: RefrigeratorIcon,
-        price: prices["refrigerator_cost"],
-      },
-      { label: "Basement", type: "boolean", option_name: "has_basement", Icon: ContainerIcon, price: prices["basement_cost"] },
-      { label: "Do you have a pet?", type: "boolean", option_name: "has_pet", Icon: DogIcon, price: prices["pet_charge_cost"] },
+    () =>
+      [
+        { label: "Windows", type: "count", option_name: "window_count", Icon: WindowIcon, price: prices["windows_cost"] },
+        { label: "Microwaves", type: "count", option_name: "microwave_count", Icon: MicrowaveIcon, price: prices["microwave_cost"] },
+        { label: "Ovens", type: "count", option_name: "oven_count", Icon: CookingPotIcon, price: prices["oven_cost"] },
+        {
+          label: "Refrigerators",
+          type: "count",
+          option_name: "refrigerator_count",
+          Icon: RefrigeratorIcon,
+          price: prices["refrigerator_cost"],
+        },
+        { label: "Basement", type: "boolean", option_name: "includes_basement", Icon: ContainerIcon, price: prices["basement_cost"] },
+        { label: "Do you have a pet?", type: "boolean", option_name: "pet_present", Icon: DogIcon, price: prices["pet_charge_cost"] },
 
-      {
-        label: "Baseboard",
-        type: "boolean",
-        option_name: "has_baseboard",
-        Icon: BaseboardIcon,
-        price: prices["baseboard_cost"],
-        per_square: true,
-      },
-      { label: "Change Linens", type: "boolean", option_name: "has_change_linens", Icon: BedIcon, price: prices["change_linens_cost"] },
-      {
-        label: "Kitchen Cabinets",
-        type: "boolean",
-        option_name: "has_kitchen_cabinets",
-        Icon: CabinetsIcon,
-        price: prices["kitchen_cab_cost"],
-      },
-      {
-        label: "Bathroom Cabinets",
-        type: "boolean",
-        option_name: "has_bathroom_cabinets",
-        Icon: CabinetsIcon,
-        price: prices["bathroom_cab_cost"],
-      },
-    ],
+        {
+          label: "Baseboard",
+          type: "boolean",
+          option_name: "includes_baseboard_cleaning",
+          Icon: BaseboardIcon,
+          price: prices["baseboard_cost"],
+          per_square: true,
+        },
+        {
+          label: "Change Linens",
+          type: "boolean",
+          option_name: "includes_linen_change",
+          Icon: BedIcon,
+          price: prices["change_linens_cost"],
+        },
+        {
+          label: "Kitchen Cabinets",
+          type: "boolean",
+          option_name: "includes_kitchen_cabinet_cleaning",
+          Icon: CabinetsIcon,
+          price: prices["kitchen_cab_cost"],
+        },
+        {
+          label: "Bathroom Cabinets",
+          type: "boolean",
+          option_name: "includes_bathroom_cabinet_cleaning",
+          Icon: CabinetsIcon,
+          price: prices["bathroom_cab_cost"],
+        },
+      ] as ServiceOption[],
     [],
   );
 
@@ -156,9 +179,17 @@ export const Services = ({ onNext }) => {
               <p className="text-muted-foreground">Choose the options that fit your home's needs.</p>
             </div>
             <div className="col-span-5 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-5">
-              {options.map(({ type, option_name, ...rest }) => {
-                const props = { option_name, map: customOptions, handleOptionChange, ...rest };
-                return <Service type={type} key={option_name} {...props} />;
+              {options.map(({ type, option_name, ...props }) => {
+                return (
+                  <Service
+                    type={type}
+                    key={option_name}
+                    option_name={option_name}
+                    map={customOptions}
+                    handleOptionChange={handleOptionChange}
+                    {...props}
+                  />
+                );
               })}
             </div>
           </div>
@@ -169,53 +200,59 @@ export const Services = ({ onNext }) => {
               <label className="text-2xl font-bold tracking-tight">Special Instructions</label>
               <p className="text-muted-foreground">Add any special instructions for your cleaning service here.</p>
             </div>
-            <textarea className="textarea textarea-bordered h-32 w-full" placeholder="Special Instructions" {...register("instructions")} />
+            <textarea
+              className="textarea textarea-bordered h-32 w-full"
+              placeholder="Special Instructions"
+              {...register("service.special_requests")}
+            />
           </div>
         </div>
 
         <div className="col-span-2 flex flex-col gap-4 md:flex-col md:gap-8">
           <Card>
             <div className="flex items-center gap-4">
-              {data.cleaning_type === "Home" && (
+              {service.cleaning_category === CleaningCategory.Residential && (
                 <>
                   <HomeIcon className="h-6 w-6" />
-                  <span className="text-xl font-bold">Home</span>
+                  <span className="text-xl font-bold">{CleaningCategory.Residential}</span>
                 </>
               )}
-              {data.cleaning_type === "Office" && (
+              {service.cleaning_category === CleaningCategory.Commercial && (
                 <>
                   <BuildingIcon className="h-6 w-6" />
-                  <span className="text-xl font-bold">Office</span>
+                  <span className="text-xl font-bold">{CleaningCategory.Commercial}</span>
                 </>
               )}
             </div>
             <div className="flex items-center gap-4">
               <RuleIcon className="h-6 w-6" />
               <span className="text-xl font-bold">
-                {data.square_feet - 499} ~ {data.square_feet} /sqft
-              </span>
-            </div>
-            {data.bedroom_count && (
-              <div className="flex items-center gap-4">
-                <BedFrontIcon className="h-6 w-6" />
-                <span className="text-xl font-bold">
-                  {data.bedroom_count} Bedroom{data.bedroom_count > 1 ? "s" : ""}
-                </span>
-              </div>
-            )}
-            <div className="flex items-center gap-4">
-              {data.cleaning_type === "Home" && <BathIcon className="h-6 w-6" />}
-              {data.cleaning_type === "Office" && <DoorIcon className="h-6 w-6" />}
-              <span className="text-xl font-bold">
-                {data.bathroom_count} Bathroom{data.bathroom_count > 1 ? "s" : ""}
+                {service.square_feet - 499} ~ {service.square_feet} /sqft
               </span>
             </div>
 
-            {data.has_multiple_toilets && (
+            {service.bedroom_count && (
+              <div className="flex items-center gap-4">
+                <BedFrontIcon className="h-6 w-6" />
+                <span className="text-xl font-bold">
+                  {service.bedroom_count} Bedroom{service.bedroom_count > 1 ? "s" : ""}
+                </span>
+              </div>
+            )}
+
+            <div className="flex items-center gap-4">
+              {service.cleaning_category === CleaningCategory.Residential && <BathIcon className="h-6 w-6" />}
+              {service.cleaning_category === CleaningCategory.Commercial && <DoorIcon className="h-6 w-6" />}
+              <span className="text-xl font-bold">
+                {service.bathroom_count} Bathroom{(service.bathroom_count ?? 0) > 1 ? "s" : ""}
+              </span>
+            </div>
+
+            {service.has_multiple_toilets && (
               <div className="flex items-center gap-4">
                 <DropletIcon className="h-6 w-6" />
                 <span className="text-xl font-bold">
-                  {data.toilet_count} Toilet{data.toilet_count > 1 ? "s" : ""}
+                  {service.toilet_count} Toilet{(service.toilet_count ?? 0) > 1 ? "s" : ""}
                 </span>
               </div>
             )}
@@ -223,20 +260,20 @@ export const Services = ({ onNext }) => {
             <span className="divider" />
 
             <div className="">
-              <div className="flex items-center justify-between gap-4">
+              {/* <div className="flex items-center justify-between gap-4">
                 <span className="">Subtotal</span>
                 <span className="">${estimate.subtotal.toFixed(2)}</span>
               </div>
               <div className="flex items-center justify-between gap-4">
                 <span className="">Taxes</span>
                 <span className="">${estimate.taxes.toFixed(2)}</span>
-              </div>
+              </div> */}
 
-              <span className="divider" />
+              {/* <span className="divider" /> */}
 
               <div className="mt-3 flex scale-125 items-center justify-between gap-4 rounded-full bg-primary px-5 py-2 text-primary-content">
                 <span className="text-lg font-bold">Total:</span>
-                <span className="text-lg font-bold">${estimate.total.toFixed(2)}</span>
+                <span className="text-lg font-bold">${estimate.subtotal.toFixed(2)}</span>
               </div>
             </div>
           </Card>
@@ -246,38 +283,38 @@ export const Services = ({ onNext }) => {
               className="input input-bordered col-span-5"
               type="text"
               placeholder="Full Name"
-              {...register("full_name", { required: "Please enter your full name" })}
+              {...register("contact.full_name", { required: "Please enter your full name" })}
             />
             <input
               className="input input-bordered col-span-4"
               type="text"
               placeholder="Service Address"
-              {...register("address", { required: "Please enter your address" })}
+              {...register("address.street", { required: "Please enter your address" })}
             />
-            <input className="input input-bordered col-span-1" type="text" placeholder="Unit #" {...register("unit")} />
+            <input className="input input-bordered col-span-1" type="text" placeholder="Unit #" {...register("address.unit")} />
             <input
               className="input input-bordered col-span-3"
               type="text"
               placeholder="City"
-              {...register("city", { required: "Please enter your city" })}
+              {...register("address.city", { required: "Please enter your city" })}
             />
             <input
               className="input input-bordered col-span-1"
               type="text"
               placeholder="State"
-              {...register("state", { required: "Please enter your state" })}
+              {...register("address.state", { required: "Please enter your state" })}
             />
             <input
               className="input input-bordered col-span-1"
               type="text"
               placeholder="Zip"
-              {...register("zip", { required: "Please enter your zip" })}
+              {...register("address.zip", { required: "Please enter your zip" })}
             />
             <input
               className="input input-bordered col-span-5"
               type="tel"
               placeholder="Phone Number"
-              {...register("phone", { required: "Please enter your phone" })}
+              {...register("contact.phone", { required: "Please enter your phone" })}
             />
           </div>
 

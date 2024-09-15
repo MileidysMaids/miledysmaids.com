@@ -1,18 +1,19 @@
 import React from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, FieldValues } from "react-hook-form";
 import { Services } from "./Services";
 import { Cleaning } from "./Cleaning";
 import { Booking } from "./Booking";
 
 // Types
-import type { FormValues } from "./types";
+import { CleaningCategory, CleaningItems, CleaningSubCategory } from "@/types/cleaningTypes";
+import { FormValues } from "@/types/bookingTypes";
 
-type Step = {
+type StepDefinition = {
   name: string;
-  component: React.ComponentType<StepComponentProps>;
+  component: React.ComponentType<Step>;
 };
 
-type StepComponentProps = {
+export type Step = {
   onNext: (data: FormValues) => void;
   onBack: () => void;
 };
@@ -23,22 +24,23 @@ const defaultValuesTest: FormValues = {
     slot_number: 1,
   },
   contact: {
-    full_name: "Bryan E Tejada",
+    full_name: "Bryan E. Tejada",
     phone: "4049901671",
     email: "bryan@me.com",
   },
   service: {
-    cleaning_type: "Residential",
+    cleaning_category: CleaningCategory.Residential,
+    cleaning_sub_category: CleaningSubCategory.House,
     bedroom_count: 1,
     bathroom_count: 1,
     window_count: 1,
     oven_count: 1,
-    has_baseboard: false,
-    has_kitchen_cabinets: false,
-    has_bathroom_cabinets: false,
-    has_change_linens: false,
-    has_basement: false,
-    has_pet: false,
+    includes_baseboard_cleaning: false,
+    includes_kitchen_cabinet_cleaning: false,
+    includes_bathroom_cabinet_cleaning: false,
+    includes_linen_change: false,
+    includes_basement: false,
+    pet_present: false,
     square_feet: 1000,
     package_type: "standard",
     service_frequency: "one_time",
@@ -46,24 +48,27 @@ const defaultValuesTest: FormValues = {
     microwave_count: 1,
   },
   address: {
-    street: "6115s Bridge Rd",
+    street: "6115 Abbotts Bridge Rd",
     unit: "#118",
-    city: "Savannah",
+    city: "Atlanta",
     state: "GA",
     zip: "30097",
   },
 };
 
-const steps = [
+const steps: StepDefinition[] = [
   { name: "Cleaning Type", component: Cleaning },
-  // { name: "Services", component: Services },
-  // { name: "Booking", component: Booking },
+  { name: "Services", component: Services },
+  { name: "Booking", component: Booking },
 ];
 
 export default function Component() {
-  const [currentStep, setCurrentStep] = React.useState(0);
+  const [currentStep, setCurrentStep] = React.useState(2);
   const methods = useForm({ shouldUseNativeValidation: true, defaultValues: defaultValuesTest });
-  // const methods = useForm({ shouldUseNativeValidation: true, defaultValues: { cleaning_type: "Home" } });
+  // const methods = useForm({
+  //   shouldUseNativeValidation: true,
+  //   defaultValues: { service: { cleaning_category: CleaningCategory.Residential } as CleaningItems },
+  // });
 
   React.useEffect(() => {
     // Push the initial state or replace it if needed
@@ -81,8 +86,7 @@ export default function Component() {
     };
   }, []);
 
-  const handleSubmit = async (formData: FormValues) => {
-    return;
+  const handleSubmit = async (formData: FieldValues) => {
     fetch("/api/booking/slots", {
       body: JSON.stringify(formData),
       method: "POST",
@@ -91,7 +95,8 @@ export default function Component() {
       .then(console.log);
   };
 
-  const handleNext = (data: FormValues) => {
+  const handleNext = (data: FieldValues) => {
+    console.log(data);
     // If the current step is the last step, submit the form
     if (currentStep + 1 === steps.length) return handleSubmit(data);
 
@@ -125,14 +130,11 @@ export default function Component() {
       </div>
 
       <form onSubmit={methods.handleSubmit(handleNext)} className="flex w-dvw flex-1 flex-col">
-        {steps.map(({ component: Step }, index) => {
-          console.log(currentStep, index);
-          return (
-            <div key={index} className={["w-full"].join(" ")}>
-              {currentStep === index && <Step onNext={handleNext} onBack={handleBack} />}
-            </div>
-          );
-        })}
+        {steps.map(({ component: Step }, index) => (
+          <div key={index} className={["w-full"].join(" ")}>
+            {currentStep === index && <Step onNext={handleNext} onBack={handleBack} />}
+          </div>
+        ))}
       </form>
     </FormProvider>
   );

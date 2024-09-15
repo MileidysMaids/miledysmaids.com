@@ -1,35 +1,26 @@
 import { prices, base_service_cost_ranges, service_frequency_discounts, service_type_charges, TAXES } from "./prices";
 
-/**
- * The input parameters for the estimate calculation.
- */
-export type CleaningItems = {
-  cleaning_type: "Residential" | "Commercial" | "Retail" | "Construction" | "Event Cleaning" | "Warehouse";
-  package_type?: "standard" | "detailed" | "luxury";
-  service_frequency?: "one_time" | "weekly" | "biweekly" | "monthly";
-  is_recurring?: boolean;
-  bedroom_count?: number;
-  bathroom_count?: number;
-  window_count?: number;
-  oven_count?: number;
-  square_feet?: number;
-  refrigerator_count?: number;
-  microwave_count?: number;
-  has_basement?: boolean;
-  has_pet?: boolean;
-  has_baseboard?: boolean;
-  has_kitchen_cabinets?: boolean;
-  has_bathroom_cabinets?: boolean;
-  has_change_linens?: boolean;
-};
+import { CleaningItems, EstimateTotal, CleaningSubCategory } from "@/types/cleaningTypes";
 
-export type EstimateTotal = {
-  total: number;
-  taxes: number;
-  subtotal: number;
-  discount: number;
-  before_discount: number;
-};
+export const residentialSubCategories: Array<CleaningSubCategory> = [
+  CleaningSubCategory.House,
+  CleaningSubCategory.Apartment,
+  CleaningSubCategory.AirBnb,
+];
+
+export const workplaceSubCategories: Array<CleaningSubCategory> = [
+  CleaningSubCategory.Office,
+  CleaningSubCategory.Construction,
+  CleaningSubCategory.RealEstate,
+  CleaningSubCategory.PostRenovation,
+];
+
+export const facilitiesSubCategories: Array<CleaningSubCategory> = [
+  CleaningSubCategory.Warehouse,
+  CleaningSubCategory.Retail,
+  CleaningSubCategory.Event,
+  CleaningSubCategory.Hotel,
+];
 
 export const calculateEstimate = (props: CleaningItems) => {
   const {
@@ -42,12 +33,12 @@ export const calculateEstimate = (props: CleaningItems) => {
     service_frequency = "one_time",
     refrigerator_count = 0,
     microwave_count = 0,
-    has_basement = false,
-    has_pet = false,
-    has_baseboard = false,
-    has_kitchen_cabinets = false,
-    has_bathroom_cabinets = false,
-    has_change_linens = false,
+    includes_basement = false,
+    pet_present = false,
+    includes_baseboard_cleaning = false,
+    includes_kitchen_cabinet_cleaning = false,
+    includes_bathroom_cabinet_cleaning = false,
+    includes_linen_change = false,
   } = props;
 
   // Determine base service cost
@@ -64,12 +55,12 @@ export const calculateEstimate = (props: CleaningItems) => {
     { count: oven_count, cost: prices.oven_cost },
     { count: microwave_count, cost: prices.microwave_cost },
     { count: refrigerator_count, cost: prices.refrigerator_cost },
-    { count: has_basement ? 1 : 0, cost: prices.basement_cost },
-    { count: has_baseboard ? 1 : 0, cost: prices.baseboard_cost * square_feet },
-    { count: has_kitchen_cabinets ? 1 : 0, cost: prices.kitchen_cab_cost },
-    { count: has_bathroom_cabinets ? 1 : 0, cost: prices.bathroom_cab_cost },
-    { count: has_change_linens ? 1 : 0, cost: prices.change_linens_cost },
-    { count: has_pet ? 1 : 0, cost: prices.pet_charge_cost },
+    { count: includes_basement ? 1 : 0, cost: prices.basement_cost },
+    { count: includes_baseboard_cleaning ? 1 : 0, cost: prices.baseboard_cost * square_feet },
+    { count: includes_kitchen_cabinet_cleaning ? 1 : 0, cost: prices.kitchen_cab_cost },
+    { count: includes_bathroom_cabinet_cleaning ? 1 : 0, cost: prices.bathroom_cab_cost },
+    { count: includes_linen_change ? 1 : 0, cost: prices.change_linens_cost },
+    { count: pet_present ? 1 : 0, cost: prices.pet_charge_cost },
   ];
 
   // Sum up all costs
