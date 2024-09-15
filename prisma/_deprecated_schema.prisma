@@ -1,0 +1,134 @@
+generator client {
+  provider        = "prisma-client-js"
+  // previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres:mysecretpassword@localhost:5432/mileidysmaids?schema=public"
+}
+
+model Address {
+  id      Int       @id @default(autoincrement())
+  street  String    @db.VarChar(255)
+  city    String    @db.VarChar(255)
+  state   String    @db.VarChar(255)
+  zip     String    @db.VarChar(255)
+  unit    String    @db.VarChar(255)
+  Contact Contact[]
+}
+
+model CleaningService {
+  id                 Int     @id @default(autoincrement())
+  cleaning_category CleaningCategory
+  cleaning_sub_category CleaningSubCategory?
+  package_type       String?          @default("standard")
+  service_frequency  String?          @default("one_time")
+  is_recurring       Boolean?         @default(false)
+  bedroom_count      Int?
+  bathroom_count     Int?
+  has_multiple_toilets Boolean?        @default(false)
+  toilet_count       Int?
+  window_count       Int?
+  oven_count         Int?
+  square_feet        Int
+  refrigerator_count Int?
+  microwave_count    Int?
+  pet_present        Boolean?         @default(false)
+  includes_basement  Boolean?         @default(false)
+  includes_baseboard_cleaning Boolean?         @default(false)
+  includes_kitchen_cabinet_cleaning Boolean?         @default(false)
+  includes_bathroom_cabinet_cleaning Boolean?         @default(false)
+  includes_linen_change Boolean?         @default(false)
+  includes_garage     Boolean?         @default(false)
+  parking_availability Boolean?        @default(false)
+  floor_type         FloorType?
+  special_requests   String?          @db.VarChar(255)
+  floor_count        Int?
+  cleaning_supplies_provided Boolean?  @default(false)
+  eco_friendly_products Boolean?       @default(false)
+  Slots              Slots[]
+}
+
+
+
+model Contact {
+  id        Int     @id @default(autoincrement())
+  full_name String  @db.VarChar(255)
+  phone     String  @db.VarChar(15)
+  email     String  @db.VarChar(255)
+
+  address   Address @relation(fields: [id], references: [id], onDelete: Cascade)
+
+  Slots     Slots[]
+}
+
+model Slots {
+  id                 Int     @id @default(autoincrement())
+  slot_number        Int
+
+  day_id              Int
+  day                Day @relation(fields: [day_id], references: [id], name: "SlotsDay")
+  
+  contact_id          Int
+  contact            Contact @relation(fields: [contact_id], references: [id])
+
+  cleaning_service_id  Int
+  cleaning_service    CleaningService @relation(fields: [cleaning_service_id], references: [id])
+
+  @@unique([contact_id, cleaning_service_id])
+}
+
+model Day {
+  id       Int     @id @default(autoincrement())
+  date     String
+  time     String
+  slots    Slots[] @relation(name: "SlotsDay")
+}
+
+
+enum PackageType {
+  standard
+  detailed
+  luxury
+}
+
+enum ServiceFrequency {
+  one_time
+  weekly
+  biweekly
+  monthly
+}
+
+enum FloorType {
+  carpet
+  hardwood
+  tile
+  vinyl
+  other
+}
+
+enum CleaningCategory {
+  Residential 
+  Commercial 
+  Other 
+}
+
+enum CleaningSubCategory {
+  // Residential
+  House 
+  Apartment 
+  AirBnb 
+
+  // Workplace & Specialized
+  Office 
+  Construction 
+  RealEstate 
+  PostRenovation 
+
+  // Event Spaces & Facilities
+  Event 
+  Hotel 
+  Retail 
+  Warehouse 
+}

@@ -1,57 +1,132 @@
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "postgresql"  // Choose the appropriate database provider (postgresql, mysql, sqlite, etc.)
   url      = env("DATABASE_URL")
 }
 
+// Slot Table - Represents available slots that can be booked by customers
+model Slot {
+  id         Int      @id @default(autoincrement())
+  slotNumber Int
+  date       DateTime
+  time       String
+  status     SlotStatus @default(AVAILABLE) // Available or Booked
+  booking    Booking?  @relation(name: "SlotBooking")
+
+  @@unique([date, time, slotNumber]) // Ensures each slot is unique by date, time, and slot number
+}
+
+// Enum for Slot Status
+enum SlotStatus {
+  AVAILABLE
+  BOOKED
+}
+
+// Customer Table - Stores customer contact information
+model Customer {
+  id        Int       @id @default(autoincrement())
+  fullName  String
+  phone     String    @unique
+  email     String    @unique
+  bookings  Booking[] // One-to-many relationship with Booking
+}
+
+// Service Table - Stores details about the cleaning services offered
+model Service {
+  id                        Int       @id @default(autoincrement())
+  cleaningCategory          CleaningCategory
+  cleaningSubCategory       CleaningSubCategory
+  bedroomCount              Int
+  bathroomCount             Int
+  windowCount               Int
+  ovenCount                 Int
+  includesBaseboardCleaning Boolean   @default(false)
+  includesKitchenCabinetCleaning Boolean @default(false)
+  includesBathroomCabinetCleaning Boolean @default(false)
+  includesLinenChange       Boolean   @default(false)
+  includesBasement          Boolean   @default(false)
+  petPresent                Boolean   @default(false)
+  squareFeet                Int
+  packageType               PackageType
+  serviceFrequency          ServiceFrequency
+  booking                   Booking?  @relation(name: "ServiceBooking")
+
+
+  is_recurring       Boolean?         @default(false)
+  bedroom_count      Int?
+  bathroom_count     Int?
+  has_multiple_toilets Boolean?        @default(false)
+  toilet_count       Int?
+  window_count       Int?
+  oven_count         Int?
+  square_feet        Int
+  refrigerator_count Int?
+  microwave_count    Int?
+  pet_present        Boolean?         @default(false)
+  includes_basement  Boolean?         @default(false)
+  includes_baseboard_cleaning Boolean?         @default(false)
+  includes_kitchen_cabinet_cleaning Boolean?         @default(false)
+  includes_bathroom_cabinet_cleaning Boolean?         @default(false)
+  includes_linen_change Boolean?         @default(false)
+  includes_garage     Boolean?         @default(false)
+  parking_availability Boolean?        @default(false)
+  special_requests   String?          @db.VarChar(255)
+  floor_count        Int?
+  cleaning_supplies_provided Boolean?  @default(false)
+  eco_friendly_products Boolean?       @default(false)
+
+  @@index([cleaningCategory, cleaningSubCategory]) // For efficient querying by service types
+}
+
+// Enums for Service details
+enum CleaningCategory {
+  RESIDENTIAL
+  COMMERCIAL
+}
+
+enum CleaningSubCategory {
+  HOUSE
+  APARTMENT
+  OFFICE
+}
+
+enum PackageType {
+  STANDARD
+  DEEP_CLEAN
+}
+
+enum ServiceFrequency {
+  ONE_TIME
+  WEEKLY
+  MONTHLY
+}
+
+// Address Table - Stores the address information related to a booking
 model Address {
-  id                Int               @id @default(autoincrement())
-  street            String            @db.VarChar(255)
-  city              String            @db.VarChar(255)
-  state             String            @db.VarChar(255)
-  zip               String            @db.VarChar(255)
-  unit              String            @db.VarChar(255)
-  Contact           Contact[]
+  id       Int      @id @default(autoincrement())
+  street   String
+  unit     String?
+  city     String
+  state    String
+  zip      String
+  booking  Booking? @relation(name: "AddressBooking")
 }
 
-model CleaningService {
-  id                Int               @id @default(autoincrement())
-  window_count      Int
-  microwave_count   Int
-  oven_count        Int
-  refrigerator_count Int
-  instructions      String            @db.VarChar(255)
-  Slots             Slots[]
-}
+// Booking Table - Links the Customer, Slot, Service, and Address entities together
+model Booking {
+  id         Int      @id @default(autoincrement())
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId Int
+  slot       Slot     @relation(name: "SlotBooking", fields: [slotId], references: [id])
+  slotId     Int      @unique
+  service    Service  @relation(name: "ServiceBooking", fields: [serviceId], references: [id])
+  serviceId  Int      @unique
+  address    Address  @relation(name: "AddressBooking", fields: [addressId], references: [id])
+  addressId  Int      @unique
 
-model Contact {
-  id                Int               @id @default(autoincrement())
-  full_name         String            @db.VarChar(255)
-  phone             String            @db.VarChar(15)
-  email             String            @db.VarChar(255)
-  addressId         Int
-  address           Address           @relation(fields: [addressId], references: [id], onDelete: Cascade)
-  Slots             Slots[]
-}
-
-model Days {
-  id                Int               @id @default(autoincrement())
-  day               DateTime          @unique @db.Date
-  booked_slots      Int               @default(0)
-  Slots             Slots[]
-}
-
-model Slots {
-  id                Int               @id @default(autoincrement())
-  dateId            Int
-  slot_number       Int
-  contactId         Int
-  cleaningServiceId Int
-  day               Days              @relation(fields: [dateId], references: [id], onDelete: Cascade)
-  contact           Contact           @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  cleaningService   CleaningService   @relation(fields: [cleaningServiceId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

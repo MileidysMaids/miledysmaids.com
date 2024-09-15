@@ -55,66 +55,66 @@ done
 # PostgreSQL is ready
 echo -e "${GREEN}PostgreSQL is ready!${NC}"
 
-# Create tables
-echo -e "${BLUE}Creating tables in the database...${NC}"
+# # Create tables
+# echo -e "${BLUE}Creating tables in the database...${NC}"
 
-# Create the 'days' table and echo a message if successful
-docker exec -i $CONTAINER_NAME psql -U postgres -d $POSTGRES_DB <<EOF
-CREATE TABLE days (
-  id SERIAL PRIMARY KEY,
-  day DATE NOT NULL UNIQUE,
-  booked_slots INT NOT NULL DEFAULT 0
-);
-EOF
+# # Create the 'days' table and echo a message if successful
+# docker exec -i $CONTAINER_NAME psql -U postgres -d $POSTGRES_DB <<EOF
+# CREATE TABLE days (
+#   id SERIAL PRIMARY KEY,
+#   day DATE NOT NULL UNIQUE,
+#   booked_slots INT NOT NULL DEFAULT 0
+# );
+# EOF
 
-if [ $? -eq 0 ]; then
-  echo -e "${GREEN}Table 'days' has been created successfully.${NC}"
-else
-  echo -e "${RED}Failed to create table 'days'.${NC}"
-fi
+# if [ $? -eq 0 ]; then
+#   echo -e "${GREEN}Table 'days' has been created successfully.${NC}"
+# else
+#   echo -e "${RED}Failed to create table 'days'.${NC}"
+# fi
 
-# Create the 'slots' table and echo a message if successful
-docker exec -i $CONTAINER_NAME psql -U postgres -d $POSTGRES_DB <<EOF
-CREATE TYPE address_type AS (
-  street VARCHAR(255),
-  city VARCHAR(255),
-  state VARCHAR(255),
-  zip VARCHAR(255),
-  unit VARCHAR(255)
-);
+# # Create the 'slots' table and echo a message if successful
+# docker exec -i $CONTAINER_NAME psql -U postgres -d $POSTGRES_DB <<EOF
+# CREATE TYPE address_type AS (
+#   street VARCHAR(255),
+#   city VARCHAR(255),
+#   state VARCHAR(255),
+#   zip VARCHAR(255),
+#   unit VARCHAR(255)
+# );
 
-CREATE TYPE cleaning_service_type AS (
-  window_count INT,
-  microwave_count INT,
-  oven_count INT,d
-  refrigerator_count INT,
-  instructions VARCHAR(255)
-);
+# CREATE TYPE cleaning_service_type AS (
+#   window_count INT,
+#   microwave_count INT,
+#   oven_count INT,d
+#   refrigerator_count INT,
+#   instructions VARCHAR(255)
+# );
 
 
-CREATE TYPE contact_type AS (
-  full_name VARCHAR(255),
-  phone VARCHAR(15),
-  email VARCHAR(255),
-  address address_type
-);
+# CREATE TYPE contact_type AS (
+#   full_name VARCHAR(255),
+#   phone VARCHAR(15),
+#   email VARCHAR(255),
+#   address address_type
+# );
 
-CREATE TABLE slots (
-  id SERIAL PRIMARY KEY,
-  day DATE NOT NULL,
-  slot_number INT NOT NULL,
-  contact contact_type NOT NULL,
-  cleaning_service cleaning_service_type NOT NULL,
-  FOREIGN KEY (day) REFERENCES days(day)
-);
-EOF
+# CREATE TABLE slots (
+#   id SERIAL PRIMARY KEY,
+#   day DATE NOT NULL,
+#   slot_number INT NOT NULL,
+#   contact contact_type NOT NULL,
+#   cleaning_service cleaning_service_type NOT NULL,
+#   FOREIGN KEY (day) REFERENCES days(day)
+# );
+# EOF
 
-if [ $? -eq 0 ]; then
-  echo -e "${GREEN}Table 'slots' has been created successfully.${NC}"
-else
-  echo -e "${RED}Failed to create table 'slots'.${NC}"
-fi
+# if [ $? -eq 0 ]; then
+#   echo -e "${GREEN}Table 'slots' has been created successfully.${NC}"
+# else
+#   echo -e "${RED}Failed to create table 'slots'.${NC}"
+# fi
 
-# Confirm table creation
-echo -e "${GREEN}All necessary tables have been created in the database '${POSTGRES_DB}'.${NC}"
+# # Confirm table creation
+# echo -e "${GREEN}All necessary tables have been created in the database '${POSTGRES_DB}'.${NC}"
 
