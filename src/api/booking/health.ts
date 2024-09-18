@@ -1,16 +1,10 @@
 import type { Request, Response } from "express";
-import { prisma } from "../db/db";
-import type { FormValues } from "@/types/bookingTypes";
-import { createBookingController, getAllBookedSlotsByDayController } from "../controllers/Booking";
 
 export default async (req: Request, res: Response) => {
   try {
     switch (req.method) {
       case "GET":
-        return getAllBookedSlotsByDayController(req, res);
-
-      case "POST":
-        return createBookingController(req, res);
+        return res.status(200).json({ status: "OK", message: "Booking endpoint is healthy" });
 
       default:
         return res.status(405).send({ error: "Method not allowed" });

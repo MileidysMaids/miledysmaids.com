@@ -18,41 +18,50 @@ export type Step = {
   onBack: () => void;
 };
 
-const defaultValuesTest: FormValues = {
-  slot: {
-    date: "2022-12-01",
-    slot_number: 1,
-  },
-  contact: {
-    full_name: "Bryan E. Tejada",
-    phone: "4049901671",
-    email: "bryan@me.com",
-  },
+// const defaultValuesTest: FormValues = {
+//   slot: {
+//     date: new Date("2024-09-17T12:00:00.000Z"),
+//     slot_number: 28776240,
+//     time: "10:00 AM",
+//   },
+//   contact: {
+//     full_name: "Bryan E. Tejada",
+//     phone: "4049901671",
+//     email: "bryan@me.com",
+//   },
+//   service: {
+//     cleaning_category: CleaningCategory.Residential,
+//     cleaning_sub_category: CleaningSubCategory.House,
+//     bedroom_count: 1,
+//     bathroom_count: 1,
+//     window_count: 1,
+//     oven_count: 1,
+//     includes_baseboard_cleaning: false,
+//     includes_kitchen_cabinet_cleaning: false,
+//     includes_bathroom_cabinet_cleaning: false,
+//     includes_linen_change: false,
+//     includes_basement: false,
+//     pet_present: false,
+//     square_feet: 1000,
+//     service_frequency: "ONE_TIME",
+//     refrigerator_count: 1,
+//     microwave_count: 1,
+//   },
+//   address: {
+//     street: "6115 Abbotts Bridge Rd",
+//     unit: "#118",
+//     city: "Atlanta",
+//     state: "GA",
+//     zip: "30097",
+//   },
+// };
+
+const defaultValues: Partial<FormValues> = {
   service: {
     cleaning_category: CleaningCategory.Residential,
     cleaning_sub_category: CleaningSubCategory.House,
-    bedroom_count: 1,
-    bathroom_count: 1,
-    window_count: 1,
-    oven_count: 1,
-    includes_baseboard_cleaning: false,
-    includes_kitchen_cabinet_cleaning: false,
-    includes_bathroom_cabinet_cleaning: false,
-    includes_linen_change: false,
-    includes_basement: false,
-    pet_present: false,
-    square_feet: 1000,
-    package_type: "standard",
-    service_frequency: "one_time",
-    refrigerator_count: 1,
-    microwave_count: 1,
-  },
-  address: {
-    street: "6115 Abbotts Bridge Rd",
-    unit: "#118",
-    city: "Atlanta",
-    state: "GA",
-    zip: "30097",
+    square_feet: 0,
+    service_frequency: "ONE_TIME",
   },
 };
 
@@ -63,12 +72,8 @@ const steps: StepDefinition[] = [
 ];
 
 export default function Component() {
-  const [currentStep, setCurrentStep] = React.useState(2);
-  const methods = useForm({ shouldUseNativeValidation: true, defaultValues: defaultValuesTest });
-  // const methods = useForm({
-  //   shouldUseNativeValidation: true,
-  //   defaultValues: { service: { cleaning_category: CleaningCategory.Residential } as CleaningItems },
-  // });
+  const [currentStep, setCurrentStep] = React.useState(0);
+  const methods = useForm({ shouldUseNativeValidation: true, defaultValues });
 
   React.useEffect(() => {
     // Push the initial state or replace it if needed
@@ -90,17 +95,14 @@ export default function Component() {
     fetch("/api/booking/slots", {
       body: JSON.stringify(formData),
       method: "POST",
-    })
-      .then((res) => res.json())
-      .then(console.log);
+    }).then(() => (window.location.href = "/service/success"));
   };
 
   const handleNext = (data: FieldValues) => {
-    console.log(data);
     // If the current step is the last step, submit the form
     if (currentStep + 1 === steps.length) return handleSubmit(data);
 
-    // Move forward and push the new state to history
+    // Move forward and update history
     setCurrentStep((prevStep) => {
       const newStep = prevStep + 1;
       window.history.pushState({ step: newStep }, steps[newStep].name, "");
@@ -119,15 +121,17 @@ export default function Component() {
 
   return (
     <FormProvider {...methods}>
-      <div className="flex w-dvw items-center justify-center">
-        <ul className="steps w-1/3">
-          {steps.map((step, index) => (
-            <li key={index} className={[index <= currentStep ? "step step-primary" : "step"].join(" ")}>
-              {step.name}
-            </li>
-          ))}
-        </ul>
-      </div>
+      {currentStep !== steps.length - 1 && (
+        <div className="flex w-dvw items-center justify-center">
+          <ul className="steps w-1/3">
+            {steps.slice(0, -1).map((step, index) => (
+              <li key={index} className={[index <= currentStep ? "step step-primary" : "step"].join(" ")}>
+                {step.name}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <form onSubmit={methods.handleSubmit(handleNext)} className="flex w-dvw flex-1 flex-col">
         {steps.map(({ component: Step }, index) => (

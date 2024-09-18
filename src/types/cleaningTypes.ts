@@ -1,35 +1,37 @@
 // src/types/cleaningTypes.ts
 
+import { prisma } from "@/api/db/db";
+
 export enum CleaningCategory {
-  Residential = "Residential",
-  Commercial = "Commercial",
-  Other = "Other",
+  Residential = "RESIDENTIAL",
+  Commercial = "COMMERCIAL",
+  Other = "OTHER",
 }
 
 export enum CleaningSubCategory {
   // Residential
-  House = "House",
-  Apartment = "Apartment",
-  AirBnb = "AirBnb",
+  House = "HOUSE",
+  Apartment = "APARTMENT",
+  AirBnb = "AIRBNB",
 
   // Workplace & Specialized
-  Office = "Office",
-  Construction = "Construction",
-  RealEstate = "Real Estate",
-  PostRenovation = "Post Renovation",
+  Office = "OFFICE",
+  Construction = "CONSTRUCTION",
+  RealEstate = "REAL ESTATE",
+  PostRenovation = "POST RENOVATION",
 
   // Event Spaces & Facilities
-  Event = "Event",
-  Hotel = "Hotel",
-  Retail = "Retail",
-  Warehouse = "Warehouse",
+  Event = "EVENT",
+  Hotel = "HOTEL",
+  Retail = "RETAIL",
+  Warehouse = "WAREHOUSE",
 }
 
 export type CleaningItems = {
   cleaning_category: CleaningCategory;
   cleaning_sub_category: CleaningSubCategory;
-  package_type?: "standard" | "detailed" | "luxury";
-  service_frequency?: "one_time" | "weekly" | "biweekly" | "monthly";
+  package_type?: "STANDARD" | "DETAILED" | "LUXURY";
+  service_frequency: "ONE_TIME" | "WEEKLY" | "BIWEEKLY" | "MONTHLY";
   is_recurring?: boolean;
   bedroom_count?: number;
   bathroom_count?: number;
@@ -48,7 +50,7 @@ export type CleaningItems = {
   includes_linen_change?: boolean;
   includes_garage?: boolean;
   parking_availability?: boolean;
-  floor_type?: "carpet" | "hardwood" | "tile" | "vinyl" | "other";
+  floor_type?: "CARPET" | "HARDWOOD" | "TILE" | "VINYL" | "OTHER";
   special_requests?: string;
   floor_count?: number;
   cleaning_supplies_provided?: boolean;

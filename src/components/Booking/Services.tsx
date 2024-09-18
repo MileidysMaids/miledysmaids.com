@@ -53,24 +53,25 @@ interface ServiceProps {
 const Service = ({ option_name, label, handleOptionChange, map, price, per_square, Icon, type }: ServiceProps) => {
   const { register, setValue } = useFormContext();
   const option_value: number = map[option_name] as number;
+  const option_value_form_context = `service.${option_name}`;
 
   const value = option_value ? Math.max(option_value, 0) : 0;
 
   const handleOnClick = (option_name: CleaningItemsKeys, operation: "sum" | "subtract") => {
     if (operation === "sum") {
       handleOptionChange(option_name, value + 1);
-      setValue(option_name, value + 1);
+      setValue(option_value_form_context, value + 1);
     }
     if (operation === "subtract") {
       handleOptionChange(option_name, value - 1 < 0 ? 0 : value - 1);
-      setValue(option_name, value - 1 < 0 ? 0 : value - 1);
+      setValue(option_value_form_context, value - 1 < 0 ? 0 : value - 1);
     }
   };
 
   return (
     <div
       className={[
-        "card flex aspect-square cursor-pointer select-none flex-col items-center justify-center gap-2 rounded-lg border p-4 text-center transition-all",
+        "card flex cursor-pointer select-none flex-col items-center justify-center gap-2 rounded-lg border p-4 text-center transition-all md:aspect-square",
         option_value > 0 ? "bg-primary text-white" : "",
       ].join(" ")}
       onClick={() => type === "boolean" && handleOptionChange(option_name, !option_value)}>
@@ -86,7 +87,14 @@ const Service = ({ option_name, label, handleOptionChange, map, price, per_squar
           <button type="button" className="btn btn-circle btn-sm p-1" onClick={() => handleOnClick(option_name, "sum")}>
             <PlusIcon className="h-5 w-5" />
           </button>
-          <input type="range" defaultValue={0} min={0} max={10} className="hidden" {...register(`service.${option_name}`)} />
+          <input
+            type="range"
+            defaultValue={0}
+            min={0}
+            max={10}
+            className="hidden"
+            {...register(option_value_form_context, { valueAsNumber: true })}
+          />
         </div>
       )}
       <span>{label}</span>
@@ -170,10 +178,10 @@ export const Services = ({ onNext }: Step) => {
 
   return (
     <div className="flex justify-center py-12">
-      <div className="container grid grid-cols-7 gap-2 md:gap-8">
-        <div className="col-span-5 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-5">
+      <div className="container grid grid-cols-1 gap-20 px-8 md:gap-8 lg:grid-cols-7">
+        <div className="col-span-1 grid grid-cols-1 gap-20 lg:col-span-5 lg:grid-cols-5">
           {/* Services */}
-          <div className="col-span-5 flex flex-col gap-1">
+          <div className="col-span-1 flex flex-col gap-1 lg:col-span-5">
             <div className="mb-10 flex flex-col gap-1">
               <h1 className="text-2xl font-bold tracking-tight">Personalize Your Cleaning Service</h1>
               <p className="text-muted-foreground">Choose the options that fit your home's needs.</p>
@@ -195,20 +203,21 @@ export const Services = ({ onNext }: Step) => {
           </div>
 
           {/* Special Instructions */}
-          <div className="col-span-5 mt-10 flex flex-col gap-1">
+          <div className="col-span-1 flex flex-col gap-1 lg:col-span-5">
             <div className="mb-10 flex flex-col gap-1">
               <label className="text-2xl font-bold tracking-tight">Special Instructions</label>
               <p className="text-muted-foreground">Add any special instructions for your cleaning service here.</p>
             </div>
             <textarea
-              className="textarea textarea-bordered h-32 w-full"
+              className="textarea textarea-bordered h-56 w-full lg:h-36"
               placeholder="Special Instructions"
               {...register("service.special_requests")}
             />
           </div>
         </div>
 
-        <div className="col-span-2 flex flex-col gap-4 md:flex-col md:gap-8">
+        {/* Right Side - Estimated Cost */}
+        <div className="col-span-1 flex flex-col gap-4 md:flex-col md:gap-8 lg:col-span-2">
           <Card>
             <div className="flex items-center gap-4">
               {service.cleaning_category === CleaningCategory.Residential && (
@@ -271,9 +280,10 @@ export const Services = ({ onNext }: Step) => {
 
               {/* <span className="divider" /> */}
 
-              <div className="mt-3 flex scale-125 items-center justify-between gap-4 rounded-full bg-primary px-5 py-2 text-primary-content">
+              <div className="flex scale-125 items-center justify-between gap-4 rounded-full bg-primary px-5 py-2 text-primary-content sm:scale-110 md:scale-125">
                 <span className="text-lg font-bold">Total:</span>
                 <span className="text-lg font-bold">${estimate.subtotal.toFixed(2)}</span>
+                {estimate.subtotal}
               </div>
             </div>
           </Card>
@@ -309,6 +319,12 @@ export const Services = ({ onNext }: Step) => {
               type="text"
               placeholder="Zip"
               {...register("address.zip", { required: "Please enter your zip" })}
+            />
+            <input
+              className="input input-bordered col-span-5"
+              type="email"
+              placeholder="Email"
+              {...register("contact.email", { required: "Please enter your email" })}
             />
             <input
               className="input input-bordered col-span-5"

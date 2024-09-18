@@ -2,41 +2,58 @@ import React from "react";
 import { HorizontalDatePicker } from "../HorizontalDatePicker";
 import moment from "moment";
 import { useFormContext } from "react-hook-form";
-import { BedFrontIcon, BuildingIcon, DropletIcon, HomeIcon, RuleIcon, UserIcon, BathIcon, DoorIcon } from "@/icons/Icons";
+import { BedFrontIcon, BuildingIcon, DropletIcon, HomeIcon, RuleIcon, UserIcon, BathIcon, DoorIcon, CalendarIcon } from "@/icons/Icons";
 import { FormValues, Slot } from "@/types/bookingTypes";
 import { CleaningCategory } from "@/types/cleaningTypes";
-
-const times: string[] = ["8:00AM", "9:00AM", "10:00AM", "11:00AM", "12:00PM", "1:00PM", "2:00PM"];
 
 export const Booking = () => {
   const { getValues, setValue } = useFormContext();
   const { contact, service, address } = React.useMemo(getValues as unknown as () => FormValues, []);
 
-  const [selectedDate, setSelectedDate] = React.useState<Date>(new Date(Date.now() + 1000 * 60 * 60 * 24)); // Default date is tomorrow
-  const [selectedSlot, setSelectedSlot] = React.useState<Slot>();
-  const [bookedSlots, setBookedSlots] = React.useState<string[]>([]);
+  const [selectedDate, setSelectedDate] = React.useState(moment().add(1, "day").format("YYYY-MM-DD")); // Default date is tomorrow
+  const [selectedSlot, setSelectedSlot] = React.useState<Slot | null>();
+  const [bookedSlots, setBookedSlots] = React.useState<number[]>([]);
   const [bookedDays, setBookedDays] = React.useState([]);
+  const [times, setTimes] = React.useState<moment.Moment[]>([]);
+  const [isFetching, setLoading] = React.useState({
+    bookedDays: true,
+    bookedSlots: true,
+  });
+  const isLoading = React.useMemo(() => Object.values(isFetching).every((fetching) => !fetching), [isFetching]);
 
   React.useEffect(() => {
     fetch("/api/booking/booked-days")
       .then((res) => res.json())
-      .then(setBookedDays);
+      .then(({ fullyBookedDays }) => {
+        setBookedDays(fullyBookedDays);
+      });
+    setLoading({ ...isFetching, bookedDays: false });
   }, []);
 
   React.useEffect(() => {
-    // fetch(`/api/booking/slots?date=${selectedDate}`)
-    //   .then((res) => res.json())
-    //   .then(({ bookedSlots }) => setBookedSlots(bookedSlots));
+    fetch(`/api/booking/slots?date=${selectedDate}`)
+      .then((res) => res.json())
+      .then(({ bookedSlots }) => {
+        setBookedSlots(bookedSlots.map(({ slot_number }: Slot) => slot_number));
+        setSelectedSlot(null);
+        setLoading({ ...isFetching, bookedSlots: false });
+      });
   }, [selectedDate]);
 
   React.useEffect(() => {
     setValue("slot", selectedSlot);
   }, [selectedSlot]);
 
+  React.useEffect(() => {
+    const availableTimes = ["8:00AM", "9:00AM", "10:00AM", "11:00AM", "12:00PM", "1:00PM", "2:00PM"];
+    const times = availableTimes.map((time) => moment(`${selectedDate} ${time}`, "YYYY-MM-DD hh:mm A"));
+    setTimes(times);
+  }, [selectedDate]);
+
   return (
     <div className="flex flex-col items-center justify-center gap-14 pt-10">
       <div className="container flex flex-col gap-14">
-        <HorizontalDatePicker onSelectDate={setSelectedDate} selected={selectedDate} />
+        <HorizontalDatePicker disabledDays={bookedDays} onSelectDate={setSelectedDate} selected={selectedDate} format="YYYY-MM-DD" />
 
         <div className="flex flex-row items-center justify-center gap-10">
           <div className="card border bg-base-100 shadow-xl">
@@ -105,21 +122,36 @@ export const Booking = () => {
           </div>
 
           <div className="flex flex-col gap-2">
-            {times
-              .filter((time) => !bookedSlots.includes(time))
-              .map((time, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  onClick={() => setSelectedSlot({ slot_number: index, time, date: selectedDate })}
-                  className={["btn btn-outline btn-wide text-lg", selectedSlot?.time === time && "btn-active scale-105"].join(" ")}>
-                  {time}
-                </button>
-              ))}
+            {isLoading && (
+              <div className="flex w-60 items-center justify-center">
+                <span className="loading loading-spinner loading-md" />
+                <p className="ml-2">Loading available slots ...</p>
+              </div>
+            )}
+            {!isLoading &&
+              times.map((momentTime, index) => {
+                const time = moment(momentTime, "YYYY-MM-DD hh:mm A").format("hh:mm A");
+                const date = moment(momentTime, "YYYY-MM-DD hh:mm A").toDate();
+                const slot_number = Math.floor(momentTime.toDate().getTime() / 60000);
+                const booked = bookedSlots?.includes(slot_number);
+
+                return (
+                  <div className={["tooltip-secondary", booked && "tooltip"].join(" ")} data-tip="This time is already booked.">
+                    <button
+                      key={time}
+                      type="button"
+                      disabled={booked}
+                      onClick={() => setSelectedSlot({ slot_number, time, date })}
+                      className={["btn btn-outline btn-wide text-lg", selectedSlot?.time === time && "btn-active scale-105"].join(" ")}>
+                      {time}
+                    </button>
+                  </div>
+                );
+              })}
           </div>
         </div>
 
-        <label htmlFor="modal" className="btn btn-wide mt-10 self-center">
+        <label htmlFor="modal" className={["btn btn-wide mt-10 self-center", !selectedSlot && "hidden"].join(" ")}>
           Confirm Schedule
         </label>
 
@@ -130,10 +162,19 @@ export const Booking = () => {
 
             <div className="flex flex-col gap-5">
               <span className="flex flex-row items-center gap-2">
+                <CalendarIcon className="h-6 w-6" />
+                <div>
+                  <p className="font-bold">Date</p>
+                  <p>{moment(selectedSlot?.date).format("dddd, MMMM Do YYYY")}</p>
+                  <p>at {moment(selectedSlot?.date).format("hh:mm A")}</p>
+                </div>
+              </span>
+
+              <span className="flex flex-row items-center gap-2">
                 <UserIcon className="h-6 w-6" />
                 <div>
                   <p className="font-bold">{contact.full_name}</p>
-                  <p>{contact.phone}</p>
+                  <p>{`(${contact.phone.slice(0, 3)}) ${contact.phone.slice(3, 6)}-${contact.phone.slice(6)}`}</p>
                 </div>
               </span>
 
@@ -144,7 +185,7 @@ export const Booking = () => {
                   <BuildingIcon className="h-6 w-6" />
                 )}
                 <div className="flex flex-col">
-                  <span className="font-bold">{service.cleaning_category}</span>
+                  <span className="font-bold capitalize">{service.cleaning_category.toLowerCase()}</span>
                   <p>
                     {address.street} {address.unit} <br />
                     {address.city} {address.state} {address.zip}
@@ -152,36 +193,37 @@ export const Booking = () => {
                 </div>
               </span>
 
-              <span className="flex flex-row items-center gap-2">
-                <RuleIcon className="h-6 w-6" />
-                <span className="font-bold">
-                  {service.square_feet - 499} ~ {service.square_feet} /sqft
-                </span>
-              </span>
-              {service.bedroom_count && (
+              <div className="flex flex-row gap-8">
+                {service.bedroom_count && (
+                  <span className="flex flex-row items-center gap-2">
+                    <BedFrontIcon className="h-6 w-6" />
+                    <span className="font-bold">
+                      {service.bedroom_count} Bedroom{service.bedroom_count > 1 ? "s" : ""}
+                    </span>
+                  </span>
+                )}
                 <span className="flex flex-row items-center gap-2">
-                  <BedFrontIcon className="h-6 w-6" />
+                  {service.cleaning_category === CleaningCategory.Residential && <BathIcon className="h-6 w-6" />}
+                  {service.cleaning_category === CleaningCategory.Commercial && <DoorIcon className="h-6 w-6" />}
                   <span className="font-bold">
-                    {service.bedroom_count} Bedroom{service.bedroom_count > 1 ? "s" : ""}
+                    {service.bathroom_count} Bathroom{(service.bathroom_count ?? 0) > 1 ? "s" : ""}
                   </span>
                 </span>
-              )}
-              <span className="flex flex-row items-center gap-2">
-                {service.cleaning_category === CleaningCategory.Residential && <BathIcon className="h-6 w-6" />}
-                {service.cleaning_category === CleaningCategory.Commercial && <DoorIcon className="h-6 w-6" />}
-                <span className="font-bold">
-                  {service.bathroom_count} Bathroom{(service.bathroom_count ?? 0) > 1 ? "s" : ""}
-                </span>
-              </span>
-
-              {service.has_multiple_toilets && (
-                <span className="flex flex-row items-center gap-2">
-                  <DropletIcon className="h-6 w-6" />
-                  <span className="font-bold">
-                    {service.toilet_count} Toilet{(service.toilet_count ?? 0) > 1 ? "s" : ""}
+                {service.has_multiple_toilets && (
+                  <span className="flex flex-row items-center gap-2">
+                    <DropletIcon className="h-6 w-6" />
+                    <span className="font-bold">
+                      {service.toilet_count} Toilet{(service.toilet_count ?? 0) > 1 ? "s" : ""}
+                    </span>
                   </span>
-                </span>
-              )}
+                )}
+                {/* <span className="flex flex-row items-center gap-2">
+                  <RuleIcon className="h-6 w-6" />
+                  <span className="font-bold">
+                    {service.square_feet - 499} ~ {service.square_feet} /sqft
+                  </span>
+                </span> */}
+              </div>
             </div>
 
             <div className="modal-action">
