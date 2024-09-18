@@ -19,7 +19,6 @@ CREATE TABLE "Slot" (
     "slot_number" INTEGER NOT NULL,
     "date" TIMESTAMP(3) NOT NULL,
     "time" TEXT NOT NULL,
-    "status" "SlotStatus" NOT NULL DEFAULT 'AVAILABLE',
 
     CONSTRAINT "Slot_pkey" PRIMARY KEY ("id")
 );
@@ -38,11 +37,11 @@ CREATE TABLE "Customer" (
 CREATE TABLE "Service" (
     "id" SERIAL NOT NULL,
     "cleaning_category" "CleaningCategory" NOT NULL,
-    "cleaning_sub_category" "CleaningSubCategory" NOT NULL,
-    "bedroom_count" INTEGER NOT NULL,
-    "bathroom_count" INTEGER NOT NULL,
-    "window_count" INTEGER NOT NULL,
-    "oven_count" INTEGER NOT NULL,
+    "cleaning_sub_category" "CleaningSubCategory",
+    "bedroom_count" INTEGER,
+    "bathroom_count" INTEGER,
+    "window_count" INTEGER,
+    "oven_count" INTEGER,
     "includes_baseboard_cleaning" BOOLEAN NOT NULL DEFAULT false,
     "includes_kitchen_cabinet_cleaning" BOOLEAN NOT NULL DEFAULT false,
     "includes_bathroom_cabinet_cleaning" BOOLEAN NOT NULL DEFAULT false,
@@ -60,6 +59,10 @@ CREATE TABLE "Service" (
     "floor_count" INTEGER,
     "cleaning_supplies_provided" BOOLEAN DEFAULT false,
     "eco_friendly_products" BOOLEAN DEFAULT false,
+    "includes_garage" BOOLEAN DEFAULT false,
+    "parking_availability" BOOLEAN DEFAULT false,
+    "floor_type" TEXT,
+    "special_requests" TEXT,
 
     CONSTRAINT "Service_pkey" PRIMARY KEY ("id")
 );
@@ -93,9 +96,6 @@ CREATE TABLE "Booking" (
 CREATE UNIQUE INDEX "Slot_date_time_slot_number_key" ON "Slot"("date", "time", "slot_number");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Customer_phone_key" ON "Customer"("phone");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Customer_email_key" ON "Customer"("email");
 
 -- CreateIndex
@@ -114,7 +114,7 @@ CREATE UNIQUE INDEX "Booking_address_id_key" ON "Booking"("address_id");
 ALTER TABLE "Booking" ADD CONSTRAINT "Booking_customer_id_fkey" FOREIGN KEY ("customer_id") REFERENCES "Customer"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Booking" ADD CONSTRAINT "Booking_slot_id_fkey" FOREIGN KEY ("slot_id") REFERENCES "Slot"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Booking" ADD CONSTRAINT "Booking_slot_id_fkey" FOREIGN KEY ("slot_id") REFERENCES "Slot"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Booking" ADD CONSTRAINT "Booking_service_id_fkey" FOREIGN KEY ("service_id") REFERENCES "Service"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

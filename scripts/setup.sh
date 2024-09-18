@@ -10,6 +10,11 @@ POSTGRES_PORT="5432"
 POSTGRES_DB="mileidysmaids" 
 SQL_SCRIPT="create_tables.sql"
 
+# Prompt for user input and assign to variables
+read -p "Enter DB_URL: " DB_URL
+read -p "Enter DIRECT_URL: " DIRECT_URL
+
+
 # Color variables for nicer output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -34,6 +39,8 @@ echo -e "${BLUE}Running the PostgreSQL container...${NC}"
 docker run --name $CONTAINER_NAME \
   -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
   -e POSTGRES_DB=$POSTGRES_DB \
+  -e DB_URL=$DB_URL \
+  -e DIRECT_URL=$DIRECT_URL \
   -p $POSTGRES_PORT:5432 \
   -d $IMAGE_NAME
 

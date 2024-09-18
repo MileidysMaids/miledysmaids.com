@@ -4,7 +4,15 @@ generator client {
 
 datasource db {
   provider = "postgresql" // Choose the appropriate database provider (postgresql, mysql, sqlite, etc.)
-  url      = "postgresql://postgres:mysecretpassword@localhost:5432/mileidysmaids"
+
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+
+  // url = "postgresql://postgres.mdzzujfuovagetltmhrs:lbMQV7p0lNAi9uso@aws-0-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connect_timeout=300"
+  // directUrl = "postgresql://postgres.mdzzujfuovagetltmhrs:lbMQV7p0lNAi9uso@aws-0-us-east-1.pooler.supabase.com:5432/postgres"
+
+  // directUrl = "postgresql://postgres.mdzzujfuovagetltmhrs:lbMQV7p0lNAi9uso@aws-0-us-east-1.pooler.supabase.com:5432/postgres"
+  // url      = "postgresql://postgres:mysecretpassword@localhost:5432/mileidysmaids"
 }
 
 // Slot Table - Represents available slots that can be booked by customers
@@ -63,8 +71,8 @@ model Service {
   eco_friendly_products              Boolean?             @default(false)
   includes_garage                    Boolean?             @default(false)
   parking_availability               Boolean?             @default(false)
-  floor_type                         String?              // Adjust type based on your requirements
-  special_requests                   String?              // Adjust type based on your requirements
+  floor_type                         String? // Adjust type based on your requirements
+  special_requests                   String? // Adjust type based on your requirements
 
   @@index([cleaning_category, cleaning_sub_category]) // For efficient querying by service types
 }
@@ -108,7 +116,7 @@ model Booking {
   id          Int      @id @default(autoincrement())
   customer    Customer @relation(fields: [customer_id], references: [id])
   customer_id Int
-  slot        Slot     @relation(name: "SlotBooking", fields: [slot_id], references: [id], onDelete: Cascade) 
+  slot        Slot     @relation(name: "SlotBooking", fields: [slot_id], references: [id], onDelete: Cascade)
   slot_id     Int      @unique
   service     Service  @relation(name: "ServiceBooking", fields: [service_id], references: [id])
   service_id  Int      @unique

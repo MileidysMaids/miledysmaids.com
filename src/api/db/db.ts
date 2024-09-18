@@ -1,8 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 // const { createClient } = require("@supabase/supabase-js");
 
-// console.log("db", process.env.DATABASE_URL);
-// Ms3ZL3oilIB7ZBlb
 export const prisma = new PrismaClient();
 
 // const service_role_key =

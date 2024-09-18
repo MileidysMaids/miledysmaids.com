@@ -16,7 +16,7 @@
   "scripts": {
     "dev": "gatsby develop -H 0.0.0.0",
     "start": "gatsby develop",
-    "build": "gatsby build",
+    "build": "prisma generate && gatsby build",
     "serve": "gatsby serve",
     "clean": "gatsby clean",
     "db:generate": "env-cmd -f .env yarn prisma generate",
