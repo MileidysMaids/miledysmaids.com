@@ -68,45 +68,59 @@ const Service = ({ option_name, label, handleOptionChange, map, price, per_squar
     }
   };
 
+  const MinusButton = ({ className, size = "sm" }: { className?: string; size?: string }) => (
+    <button
+      type="button"
+      className={[`btn btn-circle btn-${size} flex items-center p-1`, className].join(" ")}
+      onClick={() => handleOnClick(option_name, "subtract")}>
+      <MinusIcon className="h-5 w-5" />
+    </button>
+  );
+
+  const PlusButton = ({ className, size = "sm" }: { className?: string; size?: string }) => (
+    <button
+      type="button"
+      className={[`btn btn-circle btn-${size} flex items-center p-1`, className].join(" ")}
+      onClick={() => handleOnClick(option_name, "sum")}>
+      <PlusIcon className="h-5 w-5" />
+    </button>
+  );
+
   return (
     <div
       className={[
-        "card flex cursor-pointer select-none flex-col items-center justify-center gap-2 rounded-lg border p-4 text-center transition-all md:aspect-square",
+        "card flex cursor-pointer select-none flex-row items-center justify-between gap-3 rounded-lg border p-4 text-center transition-all lg:aspect-square lg:justify-center",
         option_value > 0 ? "bg-primary text-white" : "",
       ].join(" ")}
       onClick={() => type === "boolean" && handleOptionChange(option_name, !option_value)}>
-      {Icon && <Icon className="h-12 w-12" />}
-      {type === "count" && (
-        <div className="flex items-center gap-2">
-          <button type="button" className="btn btn-circle btn-sm p-1" onClick={() => handleOnClick(option_name, "subtract")}>
-            <MinusIcon className="h-5 w-5" />
-          </button>
+      <div className="flex flex-row items-center justify-center gap-2 rounded-lg lg:flex-col">
+        {Icon && <Icon className="h-12 w-12" />}
+        {type === "count" && (
+          <div className="flex items-center gap-2">
+            <MinusButton className="hidden lg:block" />
+            <span className="text-xl font-bold">{value}</span>
+            <PlusButton className="hidden lg:block" />
 
-          <span className="text-xl font-bold">{value}</span>
+            <input
+              type="range"
+              defaultValue={0}
+              min={0}
+              max={10}
+              className="hidden"
+              {...register(option_value_form_context, { valueAsNumber: true })}
+            />
+          </div>
+        )}
+        <span>{label}</span>
+        <span
+          className={["font-bold text-white duration-300", type === "boolean" && option_value > 0 ? "opacity-100" : "opacity-0"].join(" ")}>
+          {type === "boolean" && option_value > 0 ? "Yes" : ""}
+        </span>
+      </div>
 
-          <button type="button" className="btn btn-circle btn-sm p-1" onClick={() => handleOnClick(option_name, "sum")}>
-            <PlusIcon className="h-5 w-5" />
-          </button>
-          <input
-            type="range"
-            defaultValue={0}
-            min={0}
-            max={10}
-            className="hidden"
-            {...register(option_value_form_context, { valueAsNumber: true })}
-          />
-        </div>
-      )}
-      <span>{label}</span>
-      {/* <span className="font-bold">
-        ${price} {per_square ? "/sqft" : ""}
-      </span> */}
-      <span
-        className={[
-          "absolute bottom-7 font-bold text-white duration-300",
-          type === "boolean" && option_value > 0 ? "opacity-100" : "opacity-0",
-        ].join(" ")}>
-        Yes
+      <span className="flex flex-row gap-3">
+        {type === "count" && <MinusButton className="block lg:hidden" size="sm" />}
+        {type === "count" && <PlusButton className="block lg:hidden" size="sm" />}
       </span>
     </div>
   );
@@ -178,7 +192,7 @@ export const Services = ({ onNext }: Step) => {
 
   return (
     <div className="flex justify-center py-12">
-      <div className="container grid grid-cols-1 gap-20 px-8 md:gap-8 lg:grid-cols-7">
+      <div className="container grid grid-cols-1 gap-20 px-8 lg:grid-cols-7 lg:gap-8">
         <div className="col-span-1 grid grid-cols-1 gap-20 lg:col-span-5 lg:grid-cols-5">
           {/* Services */}
           <div className="col-span-1 flex flex-col gap-1 lg:col-span-5">
@@ -186,7 +200,7 @@ export const Services = ({ onNext }: Step) => {
               <h1 className="text-2xl font-bold tracking-tight">Personalize Your Cleaning Service</h1>
               <p className="text-muted-foreground">Choose the options that fit your home's needs.</p>
             </div>
-            <div className="col-span-5 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-5">
+            <div className="col-span-5 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5 lg:gap-6">
               {options.map(({ type, option_name, ...props }) => {
                 return (
                   <Service
@@ -217,7 +231,7 @@ export const Services = ({ onNext }: Step) => {
         </div>
 
         {/* Right Side - Estimated Cost */}
-        <div className="col-span-1 flex flex-col gap-4 md:flex-col md:gap-8 lg:col-span-2">
+        <div className="col-span-1 flex flex-col gap-4 lg:col-span-2 lg:flex-col lg:gap-8">
           <Card>
             <div className="flex items-center gap-4">
               {service.cleaning_category === CleaningCategory.Residential && (
@@ -268,7 +282,7 @@ export const Services = ({ onNext }: Step) => {
 
             <span className="divider" />
 
-            <div className="">
+            <div>
               {/* <div className="flex items-center justify-between gap-4">
                 <span className="">Subtotal</span>
                 <span className="">${estimate.subtotal.toFixed(2)}</span>
@@ -280,10 +294,9 @@ export const Services = ({ onNext }: Step) => {
 
               {/* <span className="divider" /> */}
 
-              <div className="flex scale-125 items-center justify-between gap-4 rounded-full bg-primary px-5 py-2 text-primary-content sm:scale-110 md:scale-125">
+              <div className="flex scale-125 items-center justify-between gap-4 rounded-full bg-primary px-5 py-2 text-primary-content sm:scale-110 lg:scale-125">
                 <span className="text-lg font-bold">Total:</span>
                 <span className="text-lg font-bold">${estimate.subtotal.toFixed(2)}</span>
-                {estimate.subtotal}
               </div>
             </div>
           </Card>

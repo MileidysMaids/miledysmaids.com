@@ -108,6 +108,9 @@ export default function Component() {
       window.history.pushState({ step: newStep }, steps[newStep].name, "");
       return newStep;
     });
+
+    // Scroll to the top
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleBack = () => {
@@ -123,8 +126,8 @@ export default function Component() {
     <FormProvider {...methods}>
       {currentStep !== steps.length - 1 && (
         <div className="flex w-dvw items-center justify-center">
-          <ul className="steps w-1/3">
-            {steps.slice(0, -1).map((step, index) => (
+          <ul className="steps w-full max-w-xl lg:w-1/2">
+            {steps.map((step, index) => (
               <li key={index} className={[index <= currentStep ? "step step-primary" : "step"].join(" ")}>
                 {step.name}
               </li>

@@ -5,7 +5,7 @@ export type LayoutClassNames = { injectedClassNames: string };
 
 export const NavBar = ({ children, ...props }: { children?: React.ReactNode; [key: string]: any }) => {
   return (
-    <div className="absolute left-0 top-0 z-10 flex w-dvw justify-center">
+    <div className="left-0 top-0 z-10 flex w-dvw lg:absolute lg:justify-center">
       <div className="drawer" {...props}>
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
 
@@ -80,7 +80,7 @@ export const Layout = ({ children }: React.PropsWithChildren) => {
   // Inject styles only to the first children element
   const childrenArray = React.Children.toArray(children);
   const firstChildrenWithStyles = React.cloneElement(childrenArray[0] as React.ReactElement, {
-    injectedClassNames: "pt-20 md:pt-20 flex-1 ",
+    injectedClassNames: "pt-5 md:pt-20 flex-1 ",
   });
   const childrenWithInjectedStyles = [firstChildrenWithStyles, ...childrenArray.slice(1)];
 

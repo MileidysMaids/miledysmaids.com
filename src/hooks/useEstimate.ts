@@ -1,14 +1,10 @@
-import { useState } from "react";
-import { calculateEstimate, CleaningItems } from "../utils/calculateEstimate";
+import React from "react";
+import { calculateEstimate } from "../utils/calculateEstimate";
+import { CleaningItems } from "@/types/cleaningTypes";
 import { prices } from "@/utils/prices";
 
-const defaultProps = {
-  defaultValues: {},
-};
-
-export const useEstimate = (props = defaultProps) => {
-  const { defaultValues } = props;
-  const [estimate, setEstimate] = useState(calculateEstimate(defaultValues));
+export const useEstimate = () => {
+  const [estimate, setEstimate] = React.useState(calculateEstimate({}));
 
   const calculate = (cleaningItems: CleaningItems) => {
     const results = calculateEstimate(cleaningItems);

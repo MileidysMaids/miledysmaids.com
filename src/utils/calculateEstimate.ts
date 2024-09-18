@@ -22,15 +22,15 @@ export const facilitiesSubCategories: Array<CleaningSubCategory> = [
   CleaningSubCategory.Hotel,
 ];
 
-export const calculateEstimate = (props: CleaningItems) => {
+export const calculateEstimate = (props: Partial<CleaningItems>) => {
   const {
     bedroom_count = 0,
     bathroom_count = 0,
     window_count = 0,
     oven_count = 0,
     square_feet = 0,
-    package_type = "standard",
-    service_frequency = "one_time",
+    package_type = "STANDARD",
+    service_frequency = "ONE_TIME",
     refrigerator_count = 0,
     microwave_count = 0,
     includes_basement = false,
@@ -79,6 +79,7 @@ export const calculateEstimate = (props: CleaningItems) => {
 
   // Calculate final total
   const total = subtotal + taxes;
+
 
   return { total, taxes, subtotal, discount, before_discount: base_charges } as EstimateTotal;
 };

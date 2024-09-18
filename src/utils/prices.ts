@@ -39,14 +39,14 @@ export const base_service_cost_ranges: Record<NonNullable<CleaningItems["square_
 };
 
 export const service_type_charges: Record<NonNullable<CleaningItems["package_type"]>, number> = {
-  standard: 0, // 0% charge
-  detailed: 0.5, // 50% charge
-  luxury: 0.5, // 50% charge
+  STANDARD: 0, // 0% charge
+  DETAILED: 0.5, // 50% charge
+  LUXURY: 0.5, // 50% charge
 };
 
 export const service_frequency_discounts: Record<NonNullable<CleaningItems["service_frequency"]>, number> = {
-  one_time: 0,
-  weekly: 0.2, // 20% discount
-  biweekly: 0.1, // 10% discount
-  monthly: 0.1, // 10% discount
+  ONE_TIME: 0,
+  WEEKLY: 0.2, // 20% discount
+  BIWEEKLY: 0.1, // 10% discount
+  MONTHLY: 0.1, // 10% discount
 };
