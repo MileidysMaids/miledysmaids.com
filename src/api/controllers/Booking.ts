@@ -101,22 +101,13 @@ export const getAllBookedDaysController = async (req: Request, res: Response) =>
       {} as Record<string, Set<string>>,
     );
 
-    // Log the slotsByDate to check the data structure
-    console.log("Slots by date (local times):", slotsByDate);
-
     // Find fully booked days by checking if every normalized required time is present for a date
     const fullyBookedDays = Object.entries(slotsByDate)
       .filter(([date, times]) => {
         const missingTimes = requiredTimes.filter((time) => !times.has(normalizeTime(time)));
-        if (missingTimes.length > 0) {
-          console.log(`For date ${date}, missing times:`, missingTimes); // Log missing times for debugging
-        }
         return requiredTimes.every((time) => times.has(normalizeTime(time)));
       })
       .map(([date]) => date);
-
-    // Log the fully booked days to check the final result
-    console.log("Fully booked days:", fullyBookedDays);
 
     return res.status(200).json({ fullyBookedDays });
   } catch (error) {
