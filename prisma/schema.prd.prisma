@@ -9,12 +9,6 @@ datasource db {
 
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
-
-  // url = "postgresql://postgres.mdzzujfuovagetltmhrs:lbMQV7p0lNAi9uso@aws-0-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connect_timeout=300"
-  // directUrl = "postgresql://postgres.mdzzujfuovagetltmhrs:lbMQV7p0lNAi9uso@aws-0-us-east-1.pooler.supabase.com:5432/postgres"
-
-  // directUrl = "postgresql://postgres.mdzzujfuovagetltmhrs:lbMQV7p0lNAi9uso@aws-0-us-east-1.pooler.supabase.com:5432/postgres"
-  // url      = "postgresql://postgres:mysecretpassword@localhost:5432/mileidysmaids"
 }
 
 // Slot Table - Represents available slots that can be booked by customers
