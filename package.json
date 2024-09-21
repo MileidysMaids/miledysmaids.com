@@ -16,8 +16,8 @@
   "scripts": {
     "dev": "gatsby develop -H 0.0.0.0",
     "start": "gatsby develop",
-    "build": "yarn prebuild && gatsby build",
-    "prebuild": "prisma generate && cp -r ./node_modules/.prisma ./netlify/functions/.prisma",
+    "build": "yarn prebuild && gatsby build && ls > ./static/directory_structure.txt",
+    "prebuild": "prisma generate --schema=./prisma/prd.schema.prisma",
     "serve": "gatsby serve",
     "clean": "gatsby clean",
     "test": "jest"

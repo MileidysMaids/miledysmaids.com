@@ -1,0 +1,35 @@
+
+        Directory: C:\Users\Bryan\Projects\Web Apps\mileidysmaids
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+d----         9/21/2024   7:00 PM                  .cache
+d----         9/15/2024  11:04 PM                  .vscode
+d----         9/20/2024  11:30 AM                  node_modules
+d----         9/21/2024   7:02 PM                  prisma
+d----         9/21/2024   7:00 PM                  public
+d----         9/15/2024  12:17 PM                  scripts
+d----         9/16/2024  10:47 PM                  src
+d----         9/21/2024   7:42 PM                  static
+-a---         9/21/2024  12:55 PM           1905   .env
+-a---         9/10/2024   5:41 PM           1383   .env.development
+-a---          9/6/2024   5:19 PM            230   .env.example
+-a---         9/21/2024  12:54 PM             80   .gitignore
+-a---         9/10/2024   5:19 PM             20   .npmrc
+-a---         8/12/2024  11:01 PM            134   .prettierrc
+-a---          9/6/2024   4:16 PM            514   gatsby-browser.tsx
+-a---         9/10/2024   5:05 PM            891   gatsby-config.ts
+-a---          9/6/2024   4:18 PM            635   gatsby-node.ts
+-a---         8/20/2024  12:39 PM            403   gatsby-ssr.js
+-a---         9/18/2024   1:43 AM            176   jest-preprocess.js
+-a---         9/18/2024   1:47 AM            679   jest.config.js
+-a---         8/10/2024   6:37 PM            147   jsconfig.json
+-a---         9/18/2024   1:41 AM             49   loadershim.js
+-a---         9/21/2024   7:34 PM           2024   package.json
+-a---          8/4/2024  10:38 PM             88   postcss.config.js
+-a---          8/4/2024  10:38 PM           1952   README.md
+-a---          8/6/2024   7:01 PM           1028   tailwind.config.js
+-a---          9/6/2024   3:18 PM            402   tsconfig.json
+-a---         9/20/2024  11:30 AM         511205   yarn.lock
+
