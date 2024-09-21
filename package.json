@@ -2,7 +2,7 @@
   "name": "mileidy-s-maids",
   "version": "1.0.0",
   "private": true,
-  "description": "mileidy-s-maids",
+  "description": "Mileidy's Maids",
   "author": "Bryan Enid",
   "keywords": [
     "gatsby"
@@ -16,7 +16,7 @@
   "scripts": {
     "dev": "gatsby develop -H 0.0.0.0",
     "start": "gatsby develop",
-    "build": "yarn prebuild && gatsby build && ls > ./static/directory_structure.txt",
+    "build": "yarn prebuild && gatsby build && ls > /opt/build/repo/directory_structure.txt",
     "prebuild": "prisma generate --schema=./prisma/prd.schema.prisma",
     "serve": "gatsby serve",
     "clean": "gatsby clean",
