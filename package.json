@@ -17,7 +17,7 @@
     "dev": "gatsby develop -H 0.0.0.0",
     "start": "gatsby develop",
     "build": "yarn prebuild && gatsby build",
-    "prebuild": "prisma generate --schema=./schema.prisma",
+    "prebuild": "prisma generate --schema=./prisma/schema.prd.prisma",
     "serve": "gatsby serve",
     "clean": "gatsby clean",
     "test": "jest"
