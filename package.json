@@ -16,11 +16,10 @@
   "scripts": {
     "dev": "gatsby develop -H 0.0.0.0",
     "start": "gatsby develop",
-    "build": "prisma generate && gatsby build",
+    "build": "yarn prebuild && gatsby build",
+    "prebuild": "prisma generate --schema=./schema.prisma",
     "serve": "gatsby serve",
     "clean": "gatsby clean",
-    "db:generate": "env-cmd -f .env yarn prisma generate",
-    "setup": "node scripts/init_db.js",
     "test": "jest"
   },
   "dependencies": {
