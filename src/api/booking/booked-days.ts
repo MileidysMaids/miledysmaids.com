@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { prisma } from "../db/db";
 import { getAllBookedDaysController } from "../controllers/Booking";
 
 export default async (req: Request, res: Response) => {

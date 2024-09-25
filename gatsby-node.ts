@@ -1,25 +1,26 @@
 import path from "path";
-// const path = require("path");
+import CopyWebpackPlugin from "copy-webpack-plugin";
 import type { GatsbyNode } from "gatsby";
 
-// const template = path.resolve(`./src/templates/template.tsx`);
-
-// exports.onCreateWebpackConfig = ({ actions }: GatsbyNode) => {
-//   actions.setWebpackConfig({
-//     resolve: {
-//       alias: {
-//         "@": path.resolve(__dirname, "src"),
-//       },
-//     },
-//   });
-// };
-
 export const onCreateWebpackConfig: GatsbyNode["onCreateWebpackConfig"] = ({ actions }) => {
+  console.log("Prisma binary path:", path.resolve(__dirname, "node_modules/.prisma/client/query-engine-windows.dll.node"));
+  console.log("Public prisma path:", path.resolve(__dirname, "public", "prisma"));
+
   actions.setWebpackConfig({
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "src"),
       },
     },
+    plugins: [
+      new CopyWebpackPlugin({
+        patterns: [
+          {
+            from: "node_modules/.prisma/client/", // Direct path to binary
+            to: "prisma/", // Target location in the build (eg. "public/prisma"), // Target location in the build
+          },
+        ],
+      }),
+    ],
   });
 };

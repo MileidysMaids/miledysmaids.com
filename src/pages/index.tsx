@@ -30,6 +30,10 @@ export default function IndexPage({ injectedClassNames }: LayoutClassNames) {
     calculate(defaultValues);
   }, []);
 
+  React.useEffect(() => {
+    fetch("/api/health");
+  }, []);
+
   const onSubmit = (data: FormValues) => {
     calculate({ ...data });
   };
