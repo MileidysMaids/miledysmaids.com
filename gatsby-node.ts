@@ -13,7 +13,7 @@ export const onCreateWebpackConfig: GatsbyNode["onCreateWebpackConfig"] = ({ act
       new CopyWebpackPlugin({
         patterns: [
           {
-            from: "node_modules/.prisma/client/", // Direct path to binary
+            from: "node_modules/@prisma/client/", // Direct path to binary
             to: "prisma/", // Target location in the build (eg. "public/prisma"), // Target location in the build
           },
         ],
