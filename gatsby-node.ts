@@ -3,9 +3,6 @@ import CopyWebpackPlugin from "copy-webpack-plugin";
 import type { GatsbyNode } from "gatsby";
 
 export const onCreateWebpackConfig: GatsbyNode["onCreateWebpackConfig"] = ({ actions }) => {
-  console.log("Prisma binary path:", path.resolve(__dirname, "node_modules/.prisma/client/query-engine-windows.dll.node"));
-  console.log("Public prisma path:", path.resolve(__dirname, "public", "prisma"));
-
   actions.setWebpackConfig({
     resolve: {
       alias: {
