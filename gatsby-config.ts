@@ -6,6 +6,10 @@ if (process.env.NODE_ENV === "development") paths.push(".env.development");
 if (process.env.NODE_ENV === "production") paths.push(".env");
 dotenv.config({ path: paths });
 
+console.clear();
+console.log("DOTENV Priority:", paths);
+console.log("Running in:", process.env.NODE_ENV?.toUpperCase());
+
 export default {
   graphqlTypegen: true,
   siteMetadata: {

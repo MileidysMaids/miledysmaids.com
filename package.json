@@ -16,7 +16,7 @@
   "scripts": {
     "dev": "gatsby develop -H 0.0.0.0",
     "start": "gatsby develop",
-    "build": "yarn prebuild && gatsby build ",
+    "build": "yarn prebuild && gatsby build",
     "prebuild": "prisma generate",
     "serve": "gatsby serve",
     "clean": "gatsby clean",
