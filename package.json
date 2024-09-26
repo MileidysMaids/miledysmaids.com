@@ -16,8 +16,8 @@
   "scripts": {
     "dev": "gatsby develop -H 0.0.0.0",
     "start": "gatsby develop",
-    "build": "yarn prebuild && ls && gatsby build && ls",
-    "prebuild": "cpy node_modules/.prisma/client/query_engine-* public",
+    "build": "gatsby build",
+    "postinstall": "yarn prisma generate",
     "serve": "gatsby serve",
     "clean": "gatsby clean",
     "test": "jest"
