@@ -16,12 +16,11 @@
   "scripts": {
     "dev": "gatsby develop -H 0.0.0.0",
     "start": "gatsby develop",
-    "build": "ls && yarn prebuild && gatsby build",
-    "prebuild": "prisma generate",
+    "build": "yarn prebuild && gatsby build",
+    "prebuild": "cpy node_modules/.prisma/client/query_engine-* public",
     "serve": "gatsby serve",
     "clean": "gatsby clean",
-    "test": "jest",
-    "// postbuild": "cpy node_modules/.prisma/client/runtime/libquery_engine-rhel-openssl-1.0.x.so.node node_modules/.prisma/client/"
+    "test": "jest"
   },
   "dependencies": {
     "@babel/preset-typescript": "^7.24.7",
