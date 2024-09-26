@@ -1,5 +1,5 @@
 import path from "path";
-import CopyWebpackPlugin from "copy-webpack-plugin";
+// import CopyWebpackPlugin from "copy-webpack-plugin";
 import type { GatsbyNode } from "gatsby";
 
 export const onCreateWebpackConfig: GatsbyNode["onCreateWebpackConfig"] = ({ actions, stage }) => {
@@ -11,6 +11,5 @@ export const onCreateWebpackConfig: GatsbyNode["onCreateWebpackConfig"] = ({ act
 
   actions.setWebpackConfig({
     resolve: { alias: { "@": path.resolve(__dirname, "src") } },
-    externals: { "@prisma/client": "commonjs @prisma/client" },
   });
 };

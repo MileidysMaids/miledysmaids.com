@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@babel/preset-typescript": "^7.24.7",
-    "@prisma/client": "^5.19.1",
+    "@prisma/client": "^5.20.0",
     "@stripe/react-stripe-js": "^2.7.3",
     "@stripe/stripe-js": "^4.2.0",
     "@supabase/supabase-js": "^2.45.3",
@@ -50,7 +50,7 @@
     "moment": "^2.30.1",
     "pg": "^8.12.0",
     "postcss": "^8.4.40",
-    "prisma": "^5.19.1",
+    "prisma": "^5.20.0",
     "react": "^18.2.0",
     "react-big-calendar": "^1.13.4",
     "react-dom": "^18.2.0",
