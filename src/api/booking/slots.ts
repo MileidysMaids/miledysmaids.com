@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { prisma } from "../db/db";
+import { prisma } from "../db";
 import type { FormValues } from "@/types/bookingTypes";
 import { createBookingController, getAllBookedSlotsByDayController } from "../controllers/Booking";
 

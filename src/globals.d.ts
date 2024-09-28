@@ -24,3 +24,9 @@ declare module "*.svg" {
   const value: string;
   export default value;
 }
+
+declare namespace NodeJS {
+  interface ProcessEnv {
+    DATABASE_URL: string; // Add any other environment variables as needed
+  }
+}

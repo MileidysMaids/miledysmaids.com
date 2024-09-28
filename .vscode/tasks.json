@@ -2,26 +2,6 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "[🗄️Prisma] Format Schema 📕",
-      "type": "shell",
-      "command": "yarn prisma format"
-    },
-    {
-      "label": "[🗄️Prisma] Generate Schema 🪴",
-      "type": "shell",
-      "command": "yarn prisma generate"
-    },
-    {
-      "label": "[🗄️Prisma] GUI 📄",
-      "type": "shell",
-      "command": "yarn prisma studio"
-    },
-    {
-      "label": "[🗄️Prisma] Migrate 📥",
-      "type": "shell",
-      "command": "npx prisma migrate dev --name init"
-    },
-    {
       "label": "[💻Gatsby] Run Dev Server 🚀",
       "type": "shell",
       "command": "yarn dev"
