@@ -5,6 +5,21 @@
       "label": "[💻Gatsby] Run Dev Server 🚀",
       "type": "shell",
       "command": "yarn dev"
+    },
+    {
+      "label": "[🗄️Drizzle] Generate Database",
+      "type": "shell",
+      "command": "yarn drizzle-kit generate"
+    },
+    {
+      "label": "[🗄️Drizzle] Migrate",
+      "type": "shell",
+      "command": "yarn drizzle-kit migrate"
+    },
+    {
+      "label": "[🗄️Drizzle] Drizzle Studio",
+      "type": "shell",
+      "command": "yarn drizzle-kit studio"
     }
   ]
 }

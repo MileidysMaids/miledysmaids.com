@@ -19,35 +19,36 @@ export const Booking = () => {
     bookedDays: true,
     bookedSlots: true,
   });
-  const isLoading = React.useMemo(() => Object.values(isFetching).every((fetching) => !fetching), [isFetching]);
+  const isLoading = React.useMemo(() => Object.values(isFetching).some((value) => value), [isFetching]);
 
   React.useEffect(() => {
     fetch("/api/booking/booked-days")
       .then((res) => res.json())
       .then(({ fullyBookedDays }) => {
         setBookedDays(fullyBookedDays);
+        setLoading((prev) => ({ ...prev, bookedDays: false }));
       });
-    setLoading({ ...isFetching, bookedDays: false });
   }, []);
-
-  React.useEffect(() => {
-    fetch(`/api/booking/slots?date=${selectedDate}`)
-      .then((res) => res.json())
-      .then(({ bookedSlots }) => {
-        setBookedSlots(bookedSlots.map(({ slot_number }: Slot) => slot_number));
-        setSelectedSlot(null);
-        setLoading({ ...isFetching, bookedSlots: false });
-      });
-  }, [selectedDate]);
 
   React.useEffect(() => {
     setValue("slot", selectedSlot);
   }, [selectedSlot]);
 
   React.useEffect(() => {
+    setLoading((prev) => ({ ...prev, bookedSlots: true }));
     const availableTimes = ["8:00AM", "9:00AM", "10:00AM", "11:00AM", "12:00PM", "1:00PM", "2:00PM"];
     const times = availableTimes.map((time) => moment(`${selectedDate} ${time}`, "YYYY-MM-DD hh:mm A"));
     setTimes(times);
+  }, [selectedDate]);
+
+  React.useEffect(() => {
+    fetch(`/api/booking/slots?date=${selectedDate}`)
+      .then((res) => res.json())
+      .then(({ bookedSlots }) => {
+        setBookedSlots(bookedSlots.map(({ Slot }: { Slot: Slot }) => Slot.slot_number)); // Disable booked slots if any
+        setSelectedSlot(null); // Reset selected slot
+        setLoading((prev) => ({ ...prev, bookedSlots: false }));
+      });
   }, [selectedDate]);
 
   return (

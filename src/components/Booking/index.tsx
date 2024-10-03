@@ -18,52 +18,52 @@ export type Step = {
   onBack: () => void;
 };
 
-// const defaultValuesTest: FormValues = {
-//   slot: {
-//     date: new Date("2024-09-17T12:00:00.000Z"),
-//     slot_number: 28776240,
-//     time: "10:00 AM",
-//   },
-//   contact: {
-//     full_name: "Bryan E. Tejada",
-//     phone: "4049901671",
-//     email: "bryan@me.com",
-//   },
-//   service: {
-//     cleaning_category: CleaningCategory.Residential,
-//     cleaning_sub_category: CleaningSubCategory.House,
-//     bedroom_count: 1,
-//     bathroom_count: 1,
-//     window_count: 1,
-//     oven_count: 1,
-//     includes_baseboard_cleaning: false,
-//     includes_kitchen_cabinet_cleaning: false,
-//     includes_bathroom_cabinet_cleaning: false,
-//     includes_linen_change: false,
-//     includes_basement: false,
-//     pet_present: false,
-//     square_feet: 1000,
-//     service_frequency: "ONE_TIME",
-//     refrigerator_count: 1,
-//     microwave_count: 1,
-//   },
-//   address: {
-//     street: "6115 Abbotts Bridge Rd",
-//     unit: "#118",
-//     city: "Atlanta",
-//     state: "GA",
-//     zip: "30097",
-//   },
-// };
-
-const defaultValues: Partial<FormValues> = {
+const defaultValuesTest: FormValues = {
+  slot: {
+    date: new Date("2024-09-17T12:00:00.000Z"),
+    slot_number: 28776240,
+    time: "10:00 AM",
+  },
+  contact: {
+    full_name: "Bryan E. Tejada",
+    phone: "4049901671",
+    email: "bryan@me.com",
+  },
   service: {
     cleaning_category: CleaningCategory.Residential,
     cleaning_sub_category: CleaningSubCategory.House,
-    square_feet: 0,
+    bedroom_count: 1,
+    bathroom_count: 1,
+    window_count: 1,
+    oven_count: 1,
+    includes_baseboard_cleaning: false,
+    includes_kitchen_cabinet_cleaning: false,
+    includes_bathroom_cabinet_cleaning: false,
+    includes_linen_change: false,
+    includes_basement: false,
+    pet_present: false,
+    square_feet: 1000,
     service_frequency: "ONE_TIME",
+    refrigerator_count: 1,
+    microwave_count: 1,
+  },
+  address: {
+    street: "6115 Abbotts Bridge Rd",
+    unit: "#118",
+    city: "Atlanta",
+    state: "GA",
+    zip: "30097",
   },
 };
+
+// const defaultValues: Partial<FormValues> = {
+//   service: {
+//     cleaning_category: CleaningCategory.Residential,
+//     cleaning_sub_category: CleaningSubCategory.House,
+//     square_feet: 0,
+//     service_frequency: "ONE_TIME",
+//   },
+// };
 
 const steps: StepDefinition[] = [
   { name: "Cleaning Type", component: Cleaning },
@@ -72,8 +72,8 @@ const steps: StepDefinition[] = [
 ];
 
 export default function Component() {
-  const [currentStep, setCurrentStep] = React.useState(0);
-  const methods = useForm({ shouldUseNativeValidation: true, defaultValues });
+  const [currentStep, setCurrentStep] = React.useState(2);
+  const methods = useForm({ shouldUseNativeValidation: true, defaultValues: defaultValuesTest });
 
   React.useEffect(() => {
     // Push the initial state or replace it if needed
@@ -95,7 +95,8 @@ export default function Component() {
     fetch("/api/booking/slots", {
       body: JSON.stringify(formData),
       method: "POST",
-    }).then(() => (window.location.href = "/service/success"));
+    });
+    // .then(() => (window.location.href = "/service/success"));
   };
 
   const handleNext = (data: FieldValues) => {

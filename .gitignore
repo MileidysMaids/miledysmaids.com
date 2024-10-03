@@ -5,4 +5,5 @@ public
 .env.development
 .env.local
 .prisma/
+drizzle/
 

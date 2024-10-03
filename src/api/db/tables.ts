@@ -9,39 +9,41 @@ export const cleaningSubCategory = pgEnum("CleaningSubCategory", ["HOUSE", "APAR
 export const packageType = pgEnum("PackageType", ["STANDARD", "DEEP_CLEAN"]);
 export const serviceFrequency = pgEnum("ServiceFrequency", ["ONE_TIME", "WEEKLY", "MONTHLY"]);
 
-// Booking Table (Define this early for references)
-export const booking = pgTable("Booking", {
-  id: serial("id").primaryKey(),
-  customer_id: integer("customer_id")
-    .references((): any => customer.id, { onDelete: "cascade" })
-    .notNull(),
-  slot_id: integer("slot_id")
-    .references((): any => slot.id, { onDelete: "cascade" })
-    .unique(),
-  service_id: integer("service_id")
-    .references((): any => service.id, { onDelete: "cascade" })
-    .unique(),
-  address_id: integer("address_id")
-    .references((): any => address.id, { onDelete: "cascade" })
-    .unique(),
-  created_at: timestamp("created_at", { withTimezone: true }).default(sql`now()`),
-  updated_at: timestamp("updated_at", { withTimezone: true })
-    .default(sql`now()`)
-    .$onUpdate((): any => sql`now()`),
-});
+// Booking Table (Updated unique constraints for slot and future-proofed ID)
+export const booking = pgTable(
+  "Booking",
+  {
+    id: serial("id").primaryKey(),
+    customer_id: integer("customer_id")
+      .references((): any => customer.id, { onDelete: "restrict" })
+      .notNull(),
+    slot_id: integer("slot_id").references((): any => slot.id, { onDelete: "restrict" }),
+    service_id: integer("service_id").references((): any => service.id, { onDelete: "restrict" }),
+    address_id: integer("address_id").references((): any => address.id, { onDelete: "restrict" }),
 
-// Slot Table
+    created_at: timestamp("created_at", { withTimezone: true }).default(sql`now()`),
+    updated_at: timestamp("updated_at", { withTimezone: true })
+      .default(sql`now()`)
+      .$onUpdate((): any => sql`now()`),
+  },
+  (table) => ({
+    bookingIndex: uniqueIndex("booking_index").on(table.slot_id, table.service_id, table.customer_id),
+    createdAtIndex: index("created_at_index").on(table.created_at),
+  }),
+);
+
+// Slot Table (Added 'location' field to differentiate between slots in different places)
 export const slot = pgTable(
   "Slot",
   {
     id: serial("id").primaryKey(),
     slot_number: integer("slot_number").notNull(),
-    date: timestamp("date").notNull(),
+    location: varchar("location", { length: 255 }).notNull(), // New location field for slot
     time: varchar("time", { length: 255 }).notNull(),
-    booking_id: integer("booking_id").references(() => booking.id, { onDelete: "set null" }),
+    date: timestamp("date").notNull(),
   },
   (table) => ({
-    uniqueSlot: uniqueIndex("unique_slot").on(table.date, table.time, table.slot_number),
+    uniqueSlot: uniqueIndex("unique_slot").on(table.date, table.time, table.slot_number, table.location),
   }),
 );
 
@@ -49,11 +51,11 @@ export const slot = pgTable(
 export const customer = pgTable("Customer", {
   id: serial("id").primaryKey(),
   full_name: varchar("full_name", { length: 255 }).notNull(),
-  phone: varchar("phone", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 15 }).notNull(), // Reduced length for phone number
   email: varchar("email", { length: 255 }).notNull().unique(),
 });
 
-// Service Table
+// Service Table (added new index for service attributes)
 export const service = pgTable(
   "Service",
   {
@@ -91,26 +93,31 @@ export const service = pgTable(
   }),
 );
 
-// Address Table
-export const address = pgTable("Address", {
-  id: serial("id").primaryKey(),
-  street: varchar("street", { length: 255 }).notNull(),
-  unit: varchar("unit", { length: 255 }),
-  city: varchar("city", { length: 255 }).notNull(),
-  state: varchar("state", { length: 255 }).notNull(),
-  zip: varchar("zip", { length: 255 }).notNull(),
-  booking_id: integer("booking_id").references(() => booking.id, { onDelete: "set null" }),
-});
+// Address Table (normalized to prevent duplicate addresses, added unique constraint)
+export const address = pgTable(
+  "Address",
+  {
+    id: serial("id").primaryKey(),
+    street: varchar("street", { length: 255 }).notNull(),
+    unit: varchar("unit", { length: 255 }),
+    city: varchar("city", { length: 255 }).notNull(),
+    state: varchar("state", { length: 255 }).notNull(),
+    zip: varchar("zip", { length: 10 }).notNull(),
+  },
+  (table) => ({
+    uniqueAddress: uniqueIndex("unique_address").on(table.street, table.city, table.state, table.zip),
+  }),
+);
 
-// Relations
+// Relations (removed circular relations for `booking_id` and `address_id`)
 export const customerRelations = relations(customer, ({ one, many }) => ({
   bookings: many(booking),
 }));
 
 export const slotRelations = relations(slot, ({ one }) => ({
   booking: one(booking, {
-    fields: [slot.booking_id],
-    references: [booking.id],
+    fields: [slot.id],
+    references: [booking.slot_id],
   }),
 }));
 
@@ -118,13 +125,6 @@ export const serviceRelations = relations(service, ({ one }) => ({
   booking: one(booking, {
     fields: [service.id],
     references: [booking.service_id],
-  }),
-}));
-
-export const addressRelations = relations(address, ({ one }) => ({
-  booking: one(booking, {
-    fields: [address.id],
-    references: [booking.address_id],
   }),
 }));
 
