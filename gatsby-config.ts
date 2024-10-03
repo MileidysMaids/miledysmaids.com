@@ -1,9 +1,13 @@
-require("dotenv").config({ path: `.env.${process.env.NODE_ENV}` });
+import type { GatsbyConfig } from "gatsby";
+import dotenv from "dotenv";
 
-/**
- * @type {import('gatsby').GatsbyConfig}
- */
-module.exports = {
+const paths = [".env.local"];
+if (process.env.NODE_ENV === "development") paths.push(".env.development");
+if (process.env.NODE_ENV === "production") paths.push(".env");
+dotenv.config({ path: paths });
+
+export default {
+  graphqlTypegen: true,
   siteMetadata: {
     title: `Mileidy's Maids`,
     siteUrl: `https://www.yourdomain.tld`,
@@ -24,4 +28,4 @@ module.exports = {
     "gatsby-plugin-postcss",
     "gatsby-plugin-sitemap",
   ],
-};
+} as GatsbyConfig;

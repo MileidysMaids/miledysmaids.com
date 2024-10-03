@@ -1,4 +1,9 @@
 node_modules/
 .cache/
 public
+.env
+.env.development
 .env.local
+.prisma/
+drizzle/
+

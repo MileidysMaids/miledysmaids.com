@@ -2,20 +2,44 @@
   "name": "mileidy-s-maids",
   "version": "1.0.0",
   "private": true,
-  "description": "mileidy-s-maids",
+  "description": "Mileidy's Maids",
   "author": "Bryan Enid",
   "keywords": [
     "gatsby"
   ],
+  "resolutions": {
+    "dotenv": "^16.0.0"
+  },
+  "engines": {
+    "yarn": ">=1.22.0"
+  },
   "scripts": {
     "dev": "gatsby develop -H 0.0.0.0",
     "start": "gatsby develop",
     "build": "gatsby build",
     "serve": "gatsby serve",
-    "clean": "gatsby clean"
+    "clean": "gatsby clean",
+    "test": "jest"
   },
   "dependencies": {
+    "@babel/preset-typescript": "^7.24.7",
+    "@radix-ui/react-toast": "^1.2.2",
+    "@stripe/react-stripe-js": "^2.7.3",
+    "@stripe/stripe-js": "^4.2.0",
+    "@supabase/supabase-js": "^2.45.3",
+    "@tanstack/react-query": "^5.56.2",
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.13",
+    "@types/node": "^22.5.4",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.20",
+    "babel-jest": "^29.7.0",
+    "babel-preset-gatsby": "^3.13.2",
+    "class-variance-authority": "^0.7.0",
+    "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.33.0",
+    "framer-motion": "^11.5.4",
     "gatsby": "^5.13.5",
     "gatsby-plugin-image": "^3.13.1",
     "gatsby-plugin-postcss": "^6.13.1",
@@ -23,15 +47,28 @@
     "gatsby-plugin-sitemap": "^6.13.1",
     "gatsby-source-contentful": "^8.13.2",
     "gatsby-transformer-sharp": "^5.13.1",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^29.7.0",
+    "lucide-react": "^0.447.0",
+    "moment": "^2.30.1",
+    "pg": "^8.12.0",
     "postcss": "^8.4.40",
+    "postgres": "^3.4.4",
     "react": "^18.2.0",
+    "react-big-calendar": "^1.13.4",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.52.2",
-    "tailwindcss": "^3.4.7"
+    "react-responsive": "^10.0.0",
+    "stripe": "^16.7.0",
+    "tailwindcss": "^3.4.7",
+    "typescript": "^5.5.4"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "daisyui": "^4.12.10",
+    "drizzle-kit": "^0.24.2",
     "prettier": "^3.3.3",
-    "prettier-plugin-tailwindcss": "^0.6.5"
+    "prettier-plugin-tailwindcss": "^0.6.5",
+    "winston": "^3.14.2"
   }
 }
