@@ -13,9 +13,16 @@ type StepDefinition = {
   component: React.ComponentType<Step>;
 };
 
+type StepError = {
+  error: boolean;
+  message: string;
+};
+
 export type Step = {
   onNext: (data: FormValues) => void;
   onBack: () => void;
+  onChangeError?: (error: StepError) => void;
+  error?: StepError;
 };
 
 const defaultValuesTest: FormValues = {
@@ -56,14 +63,14 @@ const defaultValuesTest: FormValues = {
   },
 };
 
-// const defaultValues: Partial<FormValues> = {
-//   service: {
-//     cleaning_category: CleaningCategory.Residential,
-//     cleaning_sub_category: CleaningSubCategory.House,
-//     square_feet: 0,
-//     service_frequency: "ONE_TIME",
-//   },
-// };
+const defaultValues: Partial<FormValues> = {
+  service: {
+    cleaning_category: CleaningCategory.Residential,
+    cleaning_sub_category: CleaningSubCategory.House,
+    square_feet: 0,
+    service_frequency: "ONE_TIME",
+  },
+};
 
 const steps: StepDefinition[] = [
   { name: "Cleaning Type", component: Cleaning },
@@ -72,8 +79,9 @@ const steps: StepDefinition[] = [
 ];
 
 export default function Component() {
-  const [currentStep, setCurrentStep] = React.useState(2);
-  const methods = useForm({ shouldUseNativeValidation: true, defaultValues: defaultValuesTest });
+  const [currentStep, setCurrentStep] = React.useState(0);
+  const methods = useForm({ shouldUseNativeValidation: true, defaultValues });
+  const [error, setError] = React.useState<StepError>({ error: false, message: "" });
 
   React.useEffect(() => {
     // Push the initial state or replace it if needed
@@ -95,8 +103,12 @@ export default function Component() {
     fetch("/api/booking/slots", {
       body: JSON.stringify(formData),
       method: "POST",
-    });
-    // .then(() => (window.location.href = "/service/success"));
+    })
+      .then((res) => res.json())
+      .then(({ success, message }) => {
+        if (!success) return setError({ error: true, message });
+        window.location.href = "/service/success";
+      });
   };
 
   const handleNext = (data: FieldValues) => {
@@ -123,24 +135,32 @@ export default function Component() {
     });
   };
 
+  const handleError = (error: StepError) => {
+    setError(error);
+  };
+
   return (
     <FormProvider {...methods}>
-      {currentStep !== steps.length - 1 && (
-        <div className="flex w-dvw items-center justify-center">
-          <ul className="steps w-full max-w-xl lg:w-1/2">
-            {steps.map((step, index) => (
-              <li key={index} className={[index <= currentStep ? "step step-primary" : "step"].join(" ")}>
-                {step.name}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <div className="flex w-dvw items-center justify-center">
+        <ul className="steps w-full max-w-xl overflow-visible lg:w-1/2">
+          {steps.map((step, index) => (
+            <li
+              key={index}
+              {...(error.error ? { "data-content": "!" } : {})}
+              className={[
+                index <= currentStep ? "step step-primary" : "step",
+                index === currentStep && error.error ? "step-error" : "",
+              ].join(" ")}>
+              {step.name}
+            </li>
+          ))}
+        </ul>
+      </div>
 
       <form onSubmit={methods.handleSubmit(handleNext)} className="flex w-dvw flex-1 flex-col">
         {steps.map(({ component: Step }, index) => (
           <div key={index} className={["w-full"].join(" ")}>
-            {currentStep === index && <Step onNext={handleNext} onBack={handleBack} />}
+            {currentStep === index && <Step onNext={handleNext} onBack={handleBack} error={error} onChangeError={handleError} />}
           </div>
         ))}
       </form>

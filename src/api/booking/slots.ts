@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { createBookingController, getAllBookedSlotsByDayController } from "../controllers/Booking";
+import { createBookingController, getAllBookedSlotsByDayController } from "../_internal/controllers/Booking";
 
 export default async (req: Request, res: Response) => {
   switch (req.method) {

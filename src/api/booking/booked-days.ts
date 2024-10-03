@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getAllBookedDaysController } from "../controllers/Booking";
+import { getAllBookedDaysController } from "../_internal/controllers/Booking";
 
 export default async (req: Request, res: Response) => {
   try {

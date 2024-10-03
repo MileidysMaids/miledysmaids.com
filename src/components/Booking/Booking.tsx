@@ -1,12 +1,14 @@
-import React from "react";
+import React, { SyntheticEvent } from "react";
 import { HorizontalDatePicker } from "../HorizontalDatePicker";
 import moment from "moment";
-import { useFormContext } from "react-hook-form";
+import { set, useFormContext } from "react-hook-form";
 import { BedFrontIcon, BuildingIcon, DropletIcon, HomeIcon, RuleIcon, UserIcon, BathIcon, DoorIcon, CalendarIcon } from "@/icons/Icons";
 import { FormValues, Slot } from "@/types/bookingTypes";
 import { CleaningCategory } from "@/types/cleaningTypes";
+import { is } from "drizzle-orm";
+import { Step } from ".";
 
-export const Booking = () => {
+export const Booking = ({ error, onChangeError }: Step) => {
   const { getValues, setValue } = useFormContext();
   const { contact, service, address } = React.useMemo(getValues as unknown as () => FormValues, []);
 
@@ -15,10 +17,14 @@ export const Booking = () => {
   const [bookedSlots, setBookedSlots] = React.useState<number[]>([]);
   const [bookedDays, setBookedDays] = React.useState([]);
   const [times, setTimes] = React.useState<moment.Moment[]>([]);
+  const [isSubmitting, setSubmitting] = React.useState(false);
   const [isFetching, setLoading] = React.useState({
     bookedDays: true,
     bookedSlots: true,
   });
+
+  const modalRef = React.useRef<HTMLDialogElement>(null);
+
   const isLoading = React.useMemo(() => Object.values(isFetching).some((value) => value), [isFetching]);
 
   React.useEffect(() => {
@@ -51,10 +57,34 @@ export const Booking = () => {
       });
   }, [selectedDate]);
 
+  React.useEffect(() => {
+    setSubmitting(false);
+  }, [error]);
+
+  const handleOpenModal = () => {
+    modalRef.current?.showModal();
+  };
+
+  const handleCloseModal = () => {
+    modalRef.current?.close();
+  };
+
+  const handleSubmit = () => {
+    // NOTE: The formdata is handle by the parent component with the native submit event
+    // This will only handle the UI behaviour
+    setSubmitting(true);
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center gap-14 pt-10">
+    <div className="relative flex flex-col items-center justify-center gap-14 pt-10">
       <div className="container flex flex-col gap-14">
         <HorizontalDatePicker disabledDays={bookedDays} onSelectDate={setSelectedDate} selected={selectedDate} format="YYYY-MM-DD" />
+
+        <div className="toast">
+          <div className="alert alert-info">
+            <span>New message arrived.</span>
+          </div>
+        </div>
 
         <div className="flex flex-row items-center justify-center gap-10">
           <div className="card border bg-base-100 shadow-xl">
@@ -126,7 +156,10 @@ export const Booking = () => {
             {isLoading && (
               <div className="flex w-60 items-center justify-center">
                 <span className="loading loading-spinner loading-md" />
-                <p className="ml-2">Loading available slots ...</p>
+                <div className="ml-2 flex flex-col gap-2">
+                  <p>Getting available times</p>
+                  <p>Please wait ... </p>
+                </div>
               </div>
             )}
             {!isLoading &&
@@ -152,12 +185,12 @@ export const Booking = () => {
           </div>
         </div>
 
-        <label htmlFor="modal" className={["btn btn-wide mt-10 self-center", !selectedSlot && "hidden"].join(" ")}>
+        <button type="button" onClick={handleOpenModal} className={["btn btn-wide mt-10 self-center", !selectedSlot && "hidden"].join(" ")}>
           Confirm Schedule
-        </label>
+        </button>
 
-        <input type="checkbox" id="modal" className="modal-toggle" />
-        <div className="modal" role="dialog">
+        {/* <input type="checkbox" id="modal" className="modal-toggle" /> */}
+        <dialog id="modal" ref={modalRef} className="modal" role="dialog">
           <div className="modal-box flex flex-col gap-5">
             <h3 className="text-lg font-bold">Are you sure you want to schedule this time?</h3>
 
@@ -229,16 +262,18 @@ export const Booking = () => {
 
             <div className="modal-action">
               <div className="flex flex-row gap-5">
-                <label htmlFor="modal" className="btn btn-ghost">
+                <label onClick={handleCloseModal} htmlFor="modal" className="btn btn-ghost modal-action">
                   Cancel
                 </label>
-                <button type="submit" className="btn btn-primary">
+
+                <button type="submit" onClick={handleSubmit} className="btn btn-primary modal-action">
+                  {isSubmitting && <span className="loading loading-spinner" />}
                   Confirm
                 </button>
               </div>
             </div>
           </div>
-        </div>
+        </dialog>
       </div>
     </div>
   );

@@ -71,7 +71,7 @@ const Service = ({ option_name, label, handleOptionChange, map, price, per_squar
   const MinusButton = ({ className, size = "sm" }: { className?: string; size?: string }) => (
     <button
       type="button"
-      className={[`btn btn-circle btn-${size} flex items-center p-1`, className].join(" ")}
+      className={[`btn btn-circle flex items-center p-1`, `btn-${size}`, className].join(" ")}
       onClick={() => handleOnClick(option_name, "subtract")}>
       <MinusIcon className="h-5 w-5" />
     </button>
@@ -80,7 +80,7 @@ const Service = ({ option_name, label, handleOptionChange, map, price, per_squar
   const PlusButton = ({ className, size = "sm" }: { className?: string; size?: string }) => (
     <button
       type="button"
-      className={[`btn btn-circle btn-${size} flex items-center p-1`, className].join(" ")}
+      className={[`btn btn-circle flex items-center p-1`, `btn-${size}`, className].join(" ")}
       onClick={() => handleOnClick(option_name, "sum")}>
       <PlusIcon className="h-5 w-5" />
     </button>
@@ -126,7 +126,7 @@ const Service = ({ option_name, label, handleOptionChange, map, price, per_squar
   );
 };
 
-export const Services = ({ onNext }: Step) => {
+export const Services = ({ error, onChangeError }: Step) => {
   const { calculate, estimate, prices } = useEstimate();
   const { register, getValues } = useFormContext();
 
