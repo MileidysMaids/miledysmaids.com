@@ -3,14 +3,14 @@ import { CleaningItems } from "@/types/cleaningTypes";
 const bedroom_cost = 17;
 const bathroom_cost = 19;
 const windows_cost = 5;
-const oven_cost = 18;
+const oven_cost = 25;
 const microwave_cost = 10;
 const baseboard_cost = 0.04;
 const basement_cost = 65;
 const kitchen_cab_cost = 40;
 const bathroom_cab_cost = 30;
 const change_linens_cost = 5;
-const pet_charge_cost = 25;
+const pet_charge_cost = 10;
 const refrigerator_cost = 40;
 export const TAXES = 0.06;
 
@@ -30,12 +30,16 @@ export const prices = {
 };
 
 export const base_service_cost_ranges: Record<NonNullable<CleaningItems["square_feet"]>, number> = {
-  0: 100, // 0+ sqft
-  1101: 115, // 1100+ sqft
-  1501: 125, // 1500+ sqft
-  2001: 135, // 2000+ sqft
-  2501: 145, // 2500+ sqft
-  3001: 190, // default
+  0: 40, // 0+ sqft
+  1101: 45, // 1100+ sqft
+  1501: 50, // 1500+ sqft
+  2001: 55, // 2000+ sqft
+  2501: 60, // 2500+ sqft
+  3001: 65, // 3000+ sqft
+  3501: 70, // 3500+ sqft
+  4001: 75, // 4000+ sqft
+  4501: 80, // 4500+ sqft
+  5001: 85, // 5000+ sqft
 };
 
 export const service_type_charges: Record<NonNullable<CleaningItems["package_type"]>, number> = {
@@ -45,8 +49,8 @@ export const service_type_charges: Record<NonNullable<CleaningItems["package_typ
 };
 
 export const service_frequency_discounts: Record<NonNullable<CleaningItems["service_frequency"]>, number> = {
-  ONE_TIME: 0,
-  WEEKLY: 0.2, // 20% discount
-  BIWEEKLY: 0.1, // 10% discount
-  MONTHLY: 0.1, // 10% discount
+  ONE_TIME: 0, // 0% discount
+  WEEKLY: 0.3, // 20% discount
+  BIWEEKLY: 0.2, // 10% discount
+  MONTHLY: 0, // 5% discount
 };
