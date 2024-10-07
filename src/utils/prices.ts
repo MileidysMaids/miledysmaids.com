@@ -35,7 +35,11 @@ export const base_service_cost_ranges: Record<NonNullable<CleaningItems["square_
   1501: 50, // 1500+ sqft
   2001: 55, // 2000+ sqft
   2501: 60, // 2500+ sqft
-  3001: 65, // default
+  3001: 65, // 3000+ sqft
+  3501: 70, // 3500+ sqft
+  4001: 75, // 4000+ sqft
+  4501: 80, // 4500+ sqft
+  5001: 85, // 5000+ sqft
 };
 
 export const service_type_charges: Record<NonNullable<CleaningItems["package_type"]>, number> = {
@@ -45,8 +49,8 @@ export const service_type_charges: Record<NonNullable<CleaningItems["package_typ
 };
 
 export const service_frequency_discounts: Record<NonNullable<CleaningItems["service_frequency"]>, number> = {
-  ONE_TIME: 0,
-  WEEKLY: 0.2, // 20% discount
-  BIWEEKLY: 0.1, // 10% discount
-  MONTHLY: 0.1, // 10% discount
+  ONE_TIME: 0, // 0% discount
+  WEEKLY: 0.3, // 20% discount
+  BIWEEKLY: 0.2, // 10% discount
+  MONTHLY: 0, // 5% discount
 };

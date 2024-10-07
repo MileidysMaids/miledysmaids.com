@@ -103,7 +103,30 @@ const ServiceDetailsDesktop = ({ service, estimate }: { service: CleaningItems; 
 
       <span className="divider" />
 
-      <div>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1 font-light">
+          <div className="flex items-center justify-between">
+            <span>
+              Monthly Cleaning <span className="font-bold">(5% Discounts)</span>:
+            </span>{" "}
+            <span>${Math.round(estimate.subtotal * 0.95)}</span>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <span>
+              Weekly Cleaning <span className="font-bold">(10% Discounts)</span>:
+            </span>{" "}
+            <span>${Math.round(estimate.subtotal * 0.9)}</span>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <span>
+              Bi-Weekly Cleaning <span className="font-bold">(20% Discounts)</span>:
+            </span>{" "}
+            <span>${Math.round(estimate.subtotal * 0.8)}</span>
+          </div>
+        </div>
+
         <div className="flex scale-125 items-center justify-between gap-4 rounded-full bg-primary px-5 py-2 text-primary-content sm:scale-110 lg:scale-125">
           <span className="text-lg font-bold">Total:</span>
           <span className="text-lg font-bold">${estimate.subtotal.toFixed(2)}</span>

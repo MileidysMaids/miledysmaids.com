@@ -9,9 +9,10 @@ const Card = (props: { children: React.ReactNode; className?: string; selected?:
   const { children, className, selected, ...rest } = props;
   return (
     <div
-      className={["card max-w-sm bg-base-100 shadow-xl transition-colors", selected ? "border-[2px] border-primary text-white" : ""].join(
-        " ",
-      )}
+      className={[
+        "card max-w-sm border bg-base-100 shadow-xl transition-colors",
+        selected ? "border-[2px] border-primary text-white" : "",
+      ].join(" ")}
       {...rest}>
       <div className={["card-body", className].join(" ")}>{children}</div>
     </div>
