@@ -105,8 +105,8 @@ export default function Component() {
       method: "POST",
     })
       .then((res) => res.json())
-      .then(({ success, message }) => {
-        if (!success) return setError({ error: true, message });
+      .then(({ success, message, error }) => {
+        if (!success) return setError({ error, message });
         window.location.href = "/service/success";
       });
   };
@@ -158,11 +158,10 @@ export default function Component() {
       </div>
 
       <form onSubmit={methods.handleSubmit(handleNext)} className="flex w-dvw flex-1 flex-col">
-        {steps.map(({ component: Step }, index) => (
-          <div key={index} className={["w-full"].join(" ")}>
-            {currentStep === index && <Step onNext={handleNext} onBack={handleBack} error={error} onChangeError={handleError} />}
-          </div>
-        ))}
+        {steps.map(
+          ({ component: Step }, index) =>
+            currentStep === index && <Step key={index} onNext={handleNext} onBack={handleBack} error={error} onChangeError={handleError} />,
+        )}
       </form>
     </FormProvider>
   );

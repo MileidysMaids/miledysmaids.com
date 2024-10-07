@@ -4,7 +4,7 @@ import moment from "moment";
 type DateProps = {
   date: moment.Moment;
   onSelectDate: (date: string) => void;
-  selected: string;
+  selected: string | null;
   disabled: boolean;
   format: string;
 };
@@ -44,7 +44,7 @@ const Date = ({ date, onSelectDate, selected, disabled, format }: DateProps) => 
 
 type HorizontalDatePickerProps = {
   onSelectDate: (date: string) => void;
-  selected: string;
+  selected?: string | null;
   format?: string;
   disabledDays?: string[];
 };

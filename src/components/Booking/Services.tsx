@@ -22,8 +22,9 @@ import {
   DoorIcon,
 } from "@/icons/Icons";
 import { Step } from ".";
-import { CleaningCategory, CleaningItems, CleaningItemsKeys } from "@/types/cleaningTypes";
+import { CleaningCategory, CleaningItems, CleaningItemsKeys, EstimateTotal } from "@/types/cleaningTypes";
 import { FormValues } from "@/types/bookingTypes";
+import { useBreakpoint } from "../hooks/use-breakpoints";
 
 const Card = ({ children, className, ...props }: React.ComponentProps<"div">) => (
   <div className="card border bg-base-100 shadow-xl" {...props}>
@@ -50,6 +51,123 @@ interface ServiceProps {
   Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
+const ServiceDetailsDesktop = ({ service, estimate }: { service: CleaningItems; estimate: EstimateTotal }) => {
+  return (
+    <Card>
+      <div className="flex items-center gap-4">
+        {service.cleaning_category === CleaningCategory.Residential && (
+          <>
+            <HomeIcon className="h-6 w-6" />
+            <span className="text-xl font-bold">{CleaningCategory.Residential}</span>
+          </>
+        )}
+        {service.cleaning_category === CleaningCategory.Commercial && (
+          <>
+            <BuildingIcon className="h-6 w-6" />
+            <span className="text-xl font-bold">{CleaningCategory.Commercial}</span>
+          </>
+        )}
+      </div>
+      <div className="flex items-center gap-4">
+        <RuleIcon className="h-6 w-6" />
+        <span className="text-xl font-bold">
+          {service.square_feet - 499} ~ {service.square_feet} /sqft
+        </span>
+      </div>
+
+      {service.bedroom_count && (
+        <div className="flex items-center gap-4">
+          <BedFrontIcon className="h-6 w-6" />
+          <span className="text-xl font-bold">
+            {service.bedroom_count} Bedroom{service.bedroom_count > 1 ? "s" : ""}
+          </span>
+        </div>
+      )}
+
+      <div className="flex items-center gap-4">
+        {service.cleaning_category === CleaningCategory.Residential && <BathIcon className="h-6 w-6" />}
+        {service.cleaning_category === CleaningCategory.Commercial && <DoorIcon className="h-6 w-6" />}
+        <span className="text-xl font-bold">
+          {service.bathroom_count} Bathroom{(service.bathroom_count ?? 0) > 1 ? "s" : ""}
+        </span>
+      </div>
+
+      {service.has_multiple_toilets && (
+        <div className="flex items-center gap-4">
+          <DropletIcon className="h-6 w-6" />
+          <span className="text-xl font-bold">
+            {service.toilet_count} Toilet{(service.toilet_count ?? 0) > 1 ? "s" : ""}
+          </span>
+        </div>
+      )}
+
+      <span className="divider" />
+
+      <div>
+        <div className="flex scale-125 items-center justify-between gap-4 rounded-full bg-primary px-5 py-2 text-primary-content sm:scale-110 lg:scale-125">
+          <span className="text-lg font-bold">Total:</span>
+          <span className="text-lg font-bold">${estimate.subtotal.toFixed(2)}</span>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
+const ServiceDetailsMobile = ({ service, estimate }: { service: CleaningItems; estimate: EstimateTotal }) => {
+  return (
+    <div className="fixed bottom-0 left-0 z-10 flex w-full flex-col items-center justify-between gap-4 border-t-2 px-4 py-5 backdrop-blur-lg">
+      <div className="flex flex-row items-center gap-4">
+        {service.bedroom_count && (
+          <div className="flex items-center gap-1">
+            <BedFrontIcon className="h-6 w-6" />
+            <span className="text-xl font-bold">{service.bedroom_count}</span>
+          </div>
+        )}
+
+        <div className="flex items-center gap-1">
+          {service.cleaning_category === CleaningCategory.Residential && <BathIcon className="h-6 w-6" />}
+          {service.cleaning_category === CleaningCategory.Commercial && <DoorIcon className="h-6 w-6" />}
+          <span className="text-xl font-bold">{service.bathroom_count}</span>
+        </div>
+
+        {service.has_multiple_toilets && (
+          <div className="flex items-center gap-4">
+            <DropletIcon className="h-6 w-6" />
+            <span className="text-xl font-bold">{service.toilet_count}</span>
+          </div>
+        )}
+
+        {service.cleaning_category === CleaningCategory.Residential && (
+          <>
+            <HomeIcon className="h-6 w-6" />
+            <span className="text-xl font-bold">{CleaningCategory.Residential}</span>
+          </>
+        )}
+        {service.cleaning_category === CleaningCategory.Commercial && (
+          <>
+            <BuildingIcon className="h-6 w-6" />
+            <span className="text-xl font-bold">{CleaningCategory.Commercial}</span>
+          </>
+        )}
+
+        <div>
+          <div className="flex items-center justify-between gap-4 rounded-full bg-primary px-5 py-2 text-primary-content">
+            <span className="text-lg font-bold">${estimate.subtotal.toFixed(2)}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ServiceDetails = ({ service, estimate }: { service: CleaningItems; estimate: EstimateTotal }) => {
+  const { isMobile } = useBreakpoint();
+
+  if (isMobile) return <ServiceDetailsMobile service={service} estimate={estimate} />;
+
+  return <ServiceDetailsDesktop service={service} estimate={estimate} />;
+};
+
 const Service = ({ option_name, label, handleOptionChange, map, price, per_square, Icon, type }: ServiceProps) => {
   const { register, setValue } = useFormContext();
   const option_value: number = map[option_name] as number;
@@ -68,19 +186,19 @@ const Service = ({ option_name, label, handleOptionChange, map, price, per_squar
     }
   };
 
-  const MinusButton = ({ className, size = "sm" }: { className?: string; size?: string }) => (
+  const MinusButton = ({ className }: { className?: string }) => (
     <button
       type="button"
-      className={[`btn btn-circle flex items-center p-1`, `btn-${size}`, className].join(" ")}
+      className={[`btn btn-circle flex items-center p-1`, `btn-sm`, className].join(" ")}
       onClick={() => handleOnClick(option_name, "subtract")}>
       <MinusIcon className="h-5 w-5" />
     </button>
   );
 
-  const PlusButton = ({ className, size = "sm" }: { className?: string; size?: string }) => (
+  const PlusButton = ({ className }: { className?: string }) => (
     <button
       type="button"
-      className={[`btn btn-circle flex items-center p-1`, `btn-${size}`, className].join(" ")}
+      className={[`btn btn-circle flex items-center p-1`, `btn-sm`, className].join(" ")}
       onClick={() => handleOnClick(option_name, "sum")}>
       <PlusIcon className="h-5 w-5" />
     </button>
@@ -119,8 +237,8 @@ const Service = ({ option_name, label, handleOptionChange, map, price, per_squar
       </div>
 
       <span className="flex flex-row gap-3">
-        {type === "count" && <MinusButton className="block lg:hidden" size="sm" />}
-        {type === "count" && <PlusButton className="block lg:hidden" size="sm" />}
+        {type === "count" && <MinusButton className="block lg:hidden" />}
+        {type === "count" && <PlusButton className="block lg:hidden" />}
       </span>
     </div>
   );
@@ -232,74 +350,7 @@ export const Services = ({ error, onChangeError }: Step) => {
 
         {/* Right Side - Estimated Cost */}
         <div className="col-span-1 flex flex-col gap-4 lg:col-span-2 lg:flex-col lg:gap-8">
-          <Card>
-            <div className="flex items-center gap-4">
-              {service.cleaning_category === CleaningCategory.Residential && (
-                <>
-                  <HomeIcon className="h-6 w-6" />
-                  <span className="text-xl font-bold">{CleaningCategory.Residential}</span>
-                </>
-              )}
-              {service.cleaning_category === CleaningCategory.Commercial && (
-                <>
-                  <BuildingIcon className="h-6 w-6" />
-                  <span className="text-xl font-bold">{CleaningCategory.Commercial}</span>
-                </>
-              )}
-            </div>
-            <div className="flex items-center gap-4">
-              <RuleIcon className="h-6 w-6" />
-              <span className="text-xl font-bold">
-                {service.square_feet - 499} ~ {service.square_feet} /sqft
-              </span>
-            </div>
-
-            {service.bedroom_count && (
-              <div className="flex items-center gap-4">
-                <BedFrontIcon className="h-6 w-6" />
-                <span className="text-xl font-bold">
-                  {service.bedroom_count} Bedroom{service.bedroom_count > 1 ? "s" : ""}
-                </span>
-              </div>
-            )}
-
-            <div className="flex items-center gap-4">
-              {service.cleaning_category === CleaningCategory.Residential && <BathIcon className="h-6 w-6" />}
-              {service.cleaning_category === CleaningCategory.Commercial && <DoorIcon className="h-6 w-6" />}
-              <span className="text-xl font-bold">
-                {service.bathroom_count} Bathroom{(service.bathroom_count ?? 0) > 1 ? "s" : ""}
-              </span>
-            </div>
-
-            {service.has_multiple_toilets && (
-              <div className="flex items-center gap-4">
-                <DropletIcon className="h-6 w-6" />
-                <span className="text-xl font-bold">
-                  {service.toilet_count} Toilet{(service.toilet_count ?? 0) > 1 ? "s" : ""}
-                </span>
-              </div>
-            )}
-
-            <span className="divider" />
-
-            <div>
-              {/* <div className="flex items-center justify-between gap-4">
-                <span className="">Subtotal</span>
-                <span className="">${estimate.subtotal.toFixed(2)}</span>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <span className="">Taxes</span>
-                <span className="">${estimate.taxes.toFixed(2)}</span>
-              </div> */}
-
-              {/* <span className="divider" /> */}
-
-              <div className="flex scale-125 items-center justify-between gap-4 rounded-full bg-primary px-5 py-2 text-primary-content sm:scale-110 lg:scale-125">
-                <span className="text-lg font-bold">Total:</span>
-                <span className="text-lg font-bold">${estimate.subtotal.toFixed(2)}</span>
-              </div>
-            </div>
-          </Card>
+          <ServiceDetails service={service} estimate={estimate} />
 
           <div className="grid grid-cols-5 gap-2">
             <input

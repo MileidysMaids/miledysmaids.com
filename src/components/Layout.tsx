@@ -21,9 +21,11 @@ export const NavBar = ({ children, ...props }: { children?: React.ReactNode; [ke
               )}
             </div>
 
-            <div className="relative mx-2 h-full w-full gap-4 px-2">
-              <Logo className="block h-full w-auto" />
-              <h1 className="text-xl font-bold">Mileidy's Maids</h1>
+            <div className="relative h-full w-full gap-4 px-2 md:px-0" onClick={() => (window.location.href = "/")}>
+              <div className="flex h-full cursor-pointer flex-row items-center gap-2">
+                <Logo className="block h-full w-auto" />
+                <h1 className="text-xl font-bold">Mileidy's Maids</h1>
+              </div>
             </div>
 
             <nav className="hidden flex-none lg:block">
@@ -43,7 +45,7 @@ export const NavBar = ({ children, ...props }: { children?: React.ReactNode; [ke
 
 export const Footer = () => {
   return (
-    <footer className="top-oval footer footer-center w-dvw bg-secondary pb-5 pt-10 text-primary-content sm:mt-10">
+    <footer className="top-oval footer footer-center z-0 w-dvw bg-secondary pb-5 pt-10 text-primary-content sm:mt-10">
       <aside>
         <Logo className="block h-32" />
         <p>
@@ -80,7 +82,7 @@ export const Layout = ({ children }: React.PropsWithChildren) => {
   // Inject styles only to the first children element
   const childrenArray = React.Children.toArray(children);
   const firstChildrenWithStyles = React.cloneElement(childrenArray[0] as React.ReactElement, {
-    injectedClassNames: "pt-5 md:pt-20 flex-1 ",
+    injectedClassNames: "pt-5 md:pt-20 flex-1",
   });
   const childrenWithInjectedStyles = [firstChildrenWithStyles, ...childrenArray.slice(1)];
 

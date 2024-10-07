@@ -6,7 +6,7 @@ import shine from "../images/svg/shine.svg";
 import landing_page_photo_1 from "@/images/landing-page-1.jpg";
 import landing_page_photo_2 from "@/images/landing-page-2.jpg";
 import landing_page_photo_3 from "@/images/landing-page-3.jpg";
-import { PageProps } from "gatsby";
+
 import { LayoutClassNames } from "@/components/Layout";
 
 type FormValues = {
@@ -15,28 +15,15 @@ type FormValues = {
   square_feet: number;
 };
 
-const defaultValues: FormValues = {
-  bedroom_count: 1,
-  bathroom_count: 1,
-  square_feet: 1000,
-};
-
 export default function IndexPage({ injectedClassNames }: LayoutClassNames) {
-  const { estimate, calculate } = useEstimate({ defaultValues });
-  const { register, handleSubmit } = useForm({ defaultValues });
+  const { estimate, calculate } = useEstimate();
+  const { register, handleSubmit } = useForm();
 
   // Calculate estimate on page load
-  React.useEffect(() => {
-    calculate(defaultValues);
-  }, []);
 
   React.useEffect(() => {
     fetch("/api/health");
   }, []);
-
-  const onSubmit = (data: FormValues) => {
-    calculate({ ...data });
-  };
 
   return (
     <>
@@ -56,54 +43,17 @@ export default function IndexPage({ injectedClassNames }: LayoutClassNames) {
           Book in less than 1 minute!
         </p>
 
-        <form onChange={handleSubmit(onSubmit)} className="flex w-full flex-col items-center justify-center gap-5 py-10 md:flex-row">
-          <select
-            {...register("bedroom_count", { valueAsNumber: true })}
-            className="select select-secondary w-full max-w-xs bg-secondary/10 font-semibold text-secondary">
-            <option disabled value={0}>
-              Number of bedrooms
-            </option>
-            {new Array(10).fill("").map((_, i) => (
-              <option key={i + 1} value={i + 1}>
-                {i + 1} Bedroom
-              </option>
-            ))}
-          </select>
-
-          <select
-            {...register("bathroom_count", { valueAsNumber: true })}
-            className="select select-secondary w-full max-w-xs bg-secondary/10 font-semibold text-secondary">
-            <option disabled value={0}>
-              Number of bathrooms
-            </option>
-            {new Array(10).fill("").map((_, i) => (
-              <option key={i + 1} value={i + 1}>
-                {i + 1} Bathroom
-              </option>
-            ))}
-          </select>
-
-          <select
-            {...register("square_feet", { valueAsNumber: true })}
-            className="select select-secondary w-full max-w-xs bg-secondary/10 font-semibold text-secondary">
-            <option disabled value={0}>
-              Estimated square feet
-            </option>
-            {new Array(10).fill("").map((_, i) => (
-              <option key={(i + 1) * 500} value={(i + 1) * 500}>
-                {i * 500} ~ {(i + 1) * 500} sq/ft
-              </option>
-            ))}
-          </select>
-        </form>
+        <p className="px-10 text-lg text-secondary md:block md:text-3xl">
+          Starting at -<span className="font-bold text-accent"> $80</span>
+          <span className="-translate-x-2 translate-y-1 text-sm">/cleaning</span>
+        </p>
 
         <a
           className="btn glass btn-warning text-wrap text-secondary md:btn-md lg:btn-lg"
           data-token="50a11f3204e740a39e0971a66f897904"
           data-orgname="Mileidys-Maids"
           href="/service/booking">
-          Schedule it! - <span className="text-xl font-bold text-accent">${estimate.subtotal}</span>
-          <span className="-translate-x-2 translate-y-1 text-xs">/cleaning</span>
+          Book now!
           <object
             className="absolute -right-2 -top-5 h-10 w-7 animate-[pulse_1s_infinite]"
             data={shine}

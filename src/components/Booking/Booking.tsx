@@ -1,18 +1,22 @@
 import React, { SyntheticEvent } from "react";
 import { HorizontalDatePicker } from "../HorizontalDatePicker";
 import moment from "moment";
-import { set, useFormContext } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import { BedFrontIcon, BuildingIcon, DropletIcon, HomeIcon, RuleIcon, UserIcon, BathIcon, DoorIcon, CalendarIcon } from "@/icons/Icons";
 import { FormValues, Slot } from "@/types/bookingTypes";
 import { CleaningCategory } from "@/types/cleaningTypes";
-import { is } from "drizzle-orm";
 import { Step } from ".";
+import { useBreakpoint } from "../hooks/use-breakpoints";
+import { Calendar } from "@/components/ui/calendar";
+import { m } from "framer-motion";
+import { Matcher } from "react-day-picker";
 
 export const Booking = ({ error, onChangeError }: Step) => {
   const { getValues, setValue } = useFormContext();
   const { contact, service, address } = React.useMemo(getValues as unknown as () => FormValues, []);
+  const { isDesktop, isMobile } = useBreakpoint();
 
-  const [selectedDate, setSelectedDate] = React.useState(moment().add(1, "day").format("YYYY-MM-DD")); // Default date is tomorrow
+  const [selectedDate, setSelectedDate] = React.useState<string | null>(); // Default date is tomorrow
   const [selectedSlot, setSelectedSlot] = React.useState<Slot | null>();
   const [bookedSlots, setBookedSlots] = React.useState<number[]>([]);
   const [bookedDays, setBookedDays] = React.useState([]);
@@ -28,13 +32,29 @@ export const Booking = ({ error, onChangeError }: Step) => {
   const isLoading = React.useMemo(() => Object.values(isFetching).some((value) => value), [isFetching]);
 
   React.useEffect(() => {
-    fetch("/api/booking/booked-days")
-      .then((res) => res.json())
-      .then(({ fullyBookedDays }) => {
-        setBookedDays(fullyBookedDays);
-        setLoading((prev) => ({ ...prev, bookedDays: false }));
-      });
+    fetchBookedDays();
   }, []);
+
+  React.useEffect(() => {
+    const handleInitialFocusDate = () => {
+      const fullyBookedDays = bookedDays.map((date) => moment(date));
+
+      // Loop through booked days and find the first available date
+      for (let i = 0; i < fullyBookedDays.length - 1; i++) {
+        const nextDay = fullyBookedDays[i].clone().add(1, "day");
+
+        if (nextDay.isBefore(fullyBookedDays[i + 1], "day")) {
+          return nextDay.format("YYYY-MM-DD"); // Return available date as JS Date object
+        }
+      }
+
+      // If no available day is found in between, return the day after the last fully booked day
+      const lastFullyBookedDay = fullyBookedDays[fullyBookedDays.length - 1];
+      return lastFullyBookedDay.clone().add(1, "day").format("YYYY-MM-DD");
+    };
+
+    if (bookedDays && bookedDays.length > 0) setSelectedDate(handleInitialFocusDate() as never);
+  }, [bookedDays]);
 
   React.useEffect(() => {
     setValue("slot", selectedSlot);
@@ -48,6 +68,38 @@ export const Booking = ({ error, onChangeError }: Step) => {
   }, [selectedDate]);
 
   React.useEffect(() => {
+    if (selectedDate) fetchBookedSlots(selectedDate);
+  }, [selectedDate]);
+
+  React.useEffect(() => {
+    if (error?.error) {
+      modalRef.current?.close();
+      setSubmitting(false);
+      reload();
+    }
+  }, [error]);
+
+  const reload = async () => {
+    try {
+      await fetchBookedDays();
+      await fetchBookedSlots(selectedDate as string);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const fetchBookedDays = () => {
+    fetch("/api/booking/booked-days")
+      .then((res) => res.json())
+      .then(({ fullyBookedDays }) => {
+        setBookedDays(fullyBookedDays);
+        setLoading((prev) => ({ ...prev, bookedDays: false }));
+      });
+  };
+
+  const fetchBookedSlots = (selectedDate: string) => {
     fetch(`/api/booking/slots?date=${selectedDate}`)
       .then((res) => res.json())
       .then(({ bookedSlots }) => {
@@ -55,11 +107,7 @@ export const Booking = ({ error, onChangeError }: Step) => {
         setSelectedSlot(null); // Reset selected slot
         setLoading((prev) => ({ ...prev, bookedSlots: false }));
       });
-  }, [selectedDate]);
-
-  React.useEffect(() => {
-    setSubmitting(false);
-  }, [error]);
+  };
 
   const handleOpenModal = () => {
     modalRef.current?.showModal();
@@ -70,87 +118,114 @@ export const Booking = ({ error, onChangeError }: Step) => {
   };
 
   const handleSubmit = () => {
+    onChangeError && onChangeError({ error: false, message: "" });
     // NOTE: The formdata is handle by the parent component with the native submit event
     // This will only handle the UI behaviour
     setSubmitting(true);
   };
 
+  // will match when the function return true
+  const handleDisabled: Matcher = (day: Date) => {
+    // Match if the day is before today
+    if (day < new Date()) return true;
+
+    // Match if the day is in the booked days
+    return bookedDays.includes(moment(day).format("YYYY-MM-DD") as never);
+  };
+
   return (
     <div className="relative flex flex-col items-center justify-center gap-14 pt-10">
-      <div className="container flex flex-col gap-14">
-        <HorizontalDatePicker disabledDays={bookedDays} onSelectDate={setSelectedDate} selected={selectedDate} format="YYYY-MM-DD" />
-
-        <div className="toast">
-          <div className="alert alert-info">
-            <span>New message arrived.</span>
+      {error?.error && (
+        <div className="toast z-10">
+          <div className="alert alert-info flex flex-col items-start justify-start">
+            <span className="font-bold">{error.message}</span>
+            <pre>{error.error}</pre>
           </div>
         </div>
+      )}
+
+      <div className="container flex flex-col gap-14">
+        {isDesktop && (
+          <HorizontalDatePicker disabledDays={bookedDays} onSelectDate={setSelectedDate} selected={selectedDate} format="YYYY-MM-DD" />
+        )}
+
+        {isMobile && (
+          <Calendar
+            disabled={handleDisabled}
+            mode="single"
+            selected={moment(selectedDate).toDate()}
+            onSelect={(date) => setSelectedDate(moment(date).format("YYYY-MM-DD"))}
+            className="self-center rounded-xl border"
+          />
+        )}
 
         <div className="flex flex-row items-center justify-center gap-10">
-          <div className="card border bg-base-100 shadow-xl">
-            <div className="card-body">
-              <div>
-                <div className="flex flex-col gap-5">
-                  <p className="text-xl font-bold uppercase">Performing services</p>
-                  <span className="flex flex-row items-center gap-2">
-                    <UserIcon className="h-6 w-6" />
-                    <div>
-                      <p className="font-bold">{contact.full_name}</p>
-                      <p>{contact.phone}</p>
-                    </div>
-                  </span>
+          {isDesktop && (
+            <div className="card border bg-base-100 shadow-xl">
+              <div className="card-body">
+                <div>
+                  <div className="flex flex-col gap-5">
+                    <p className="text-xl font-bold uppercase">Performing services</p>
+                    <span className="flex flex-row items-center gap-2">
+                      <UserIcon className="h-6 w-6" />
+                      <div>
+                        <p className="font-bold">{contact.full_name}</p>
+                        <p>{contact.phone}</p>
+                      </div>
+                    </span>
 
-                  <span className="flex flex-row items-center gap-2">
-                    {service.cleaning_category === CleaningCategory.Residential ? (
-                      <HomeIcon className="h-6 w-6" />
-                    ) : (
-                      <BuildingIcon className="h-6 w-6" />
+                    <span className="flex flex-row items-center gap-2">
+                      {service.cleaning_category === CleaningCategory.Residential ? (
+                        <HomeIcon className="h-6 w-6" />
+                      ) : (
+                        <BuildingIcon className="h-6 w-6" />
+                      )}
+                      <div className="flex flex-col">
+                        <span className="font-bold">{service.cleaning_category}</span>
+                        <p>
+                          {address.street} {address.unit} <br />
+                          {address.city} {address.state} {address.zip}
+                        </p>
+                      </div>
+                    </span>
+
+                    <span className="flex flex-row items-center gap-2">
+                      <RuleIcon className="h-6 w-6" />
+                      <span className="font-bold">
+                        {service.square_feet - 499} ~ {service.square_feet} /sqft
+                      </span>
+                    </span>
+                    {service.bedroom_count && (
+                      <span className="flex flex-row items-center gap-2">
+                        <BedFrontIcon className="h-6 w-6" />
+                        <span className="font-bold">
+                          {service.bedroom_count} Bedroom{service.bedroom_count > 1 ? "s" : ""}
+                        </span>
+                      </span>
                     )}
-                    <div className="flex flex-col">
-                      <span className="font-bold">{service.cleaning_category}</span>
-                      <p>
-                        {address.street} {address.unit} <br />
-                        {address.city} {address.state} {address.zip}
-                      </p>
-                    </div>
-                  </span>
-
-                  <span className="flex flex-row items-center gap-2">
-                    <RuleIcon className="h-6 w-6" />
-                    <span className="font-bold">
-                      {service.square_feet - 499} ~ {service.square_feet} /sqft
-                    </span>
-                  </span>
-                  {service.bedroom_count && (
                     <span className="flex flex-row items-center gap-2">
-                      <BedFrontIcon className="h-6 w-6" />
+                      {service.cleaning_category === CleaningCategory.Residential && <BathIcon className="h-6 w-6" />}
+                      {service.cleaning_category === CleaningCategory.Commercial && <DoorIcon className="h-6 w-6" />}
                       <span className="font-bold">
-                        {service.bedroom_count} Bedroom{service.bedroom_count > 1 ? "s" : ""}
+                        {service.bathroom_count} Bathroom{(service.bathroom_count ?? 0) > 1 ? "s" : ""}
                       </span>
                     </span>
-                  )}
-                  <span className="flex flex-row items-center gap-2">
-                    {service.cleaning_category === CleaningCategory.Residential && <BathIcon className="h-6 w-6" />}
-                    {service.cleaning_category === CleaningCategory.Commercial && <DoorIcon className="h-6 w-6" />}
-                    <span className="font-bold">
-                      {service.bathroom_count} Bathroom{(service.bathroom_count ?? 0) > 1 ? "s" : ""}
-                    </span>
-                  </span>
 
-                  {service.has_multiple_toilets && (
-                    <span className="flex flex-row items-center gap-2">
-                      <DropletIcon className="h-6 w-6" />
-                      <span className="font-bold">
-                        {service.toilet_count} Toilet{(service.toilet_count ?? 0) > 1 ? "s" : ""}
+                    {service.has_multiple_toilets && (
+                      <span className="flex flex-row items-center gap-2">
+                        <DropletIcon className="h-6 w-6" />
+                        <span className="font-bold">
+                          {service.toilet_count} Toilet{(service.toilet_count ?? 0) > 1 ? "s" : ""}
+                        </span>
                       </span>
-                    </span>
-                  )}
+                    )}
+                  </div>
+
+                  <span className="divider" />
                 </div>
-
-                <span className="divider" />
               </div>
             </div>
-          </div>
+          )}
 
           <div className="flex flex-col gap-2">
             {isLoading && (

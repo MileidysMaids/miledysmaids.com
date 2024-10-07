@@ -104,7 +104,7 @@ export const getAllBookedDaysController = async (req: Request, res: Response) =>
   const requiredTimes: string[] = ["8:00AM", "9:00AM", "10:00AM", "11:00AM", "12:00PM", "1:00PM", "2:00PM"];
 
   try {
-    const startOfTomorrow = moment().startOf("day").add(1, "day").toDate();
+    const startOfTomorrow = moment().startOf("day").toDate();
     const endOfNextMonth = moment().add(1, "month").endOf("day").toDate();
 
     const fullyBookedSlots = await db

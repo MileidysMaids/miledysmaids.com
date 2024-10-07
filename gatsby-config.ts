@@ -1,10 +1,15 @@
 import type { GatsbyConfig } from "gatsby";
 import dotenv from "dotenv";
+import { initializeLogger } from "src/utils/logger";
 
+// Load environment variables
 const paths = [".env.local"];
 if (process.env.NODE_ENV === "development") paths.push(".env.development");
 if (process.env.NODE_ENV === "production") paths.push(".env");
 dotenv.config({ path: paths });
+
+// Initialize the logger
+initializeLogger();
 
 export default {
   graphqlTypegen: true,
