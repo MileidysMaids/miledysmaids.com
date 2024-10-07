@@ -69,7 +69,7 @@ export const service = pgTable(
     includes_baseboard_cleaning: boolean("includes_baseboard_cleaning").default(false),
     includes_kitchen_cabinet_cleaning: boolean("includes_kitchen_cabinet_cleaning").default(false),
     includes_bathroom_cabinet_cleaning: boolean("includes_bathroom_cabinet_cleaning").default(false),
-    includes_linen_change: boolean("includes_linen_change").default(false),
+    linen_change_count: boolean("linen_change_count").default(false),
     includes_basement: boolean("includes_basement").default(false),
     pet_present: boolean("pet_present").default(false),
     square_feet: integer("square_feet").notNull(),

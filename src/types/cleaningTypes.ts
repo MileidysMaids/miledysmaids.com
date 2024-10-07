@@ -45,7 +45,7 @@ export type CleaningItems = {
   includes_baseboard_cleaning?: boolean;
   includes_kitchen_cabinet_cleaning?: boolean;
   includes_bathroom_cabinet_cleaning?: boolean;
-  includes_linen_change?: boolean;
+  linen_change_count?: number;
   includes_garage?: boolean;
   parking_availability?: boolean;
   floor_type?: "CARPET" | "HARDWOOD" | "TILE" | "VINYL" | "OTHER";

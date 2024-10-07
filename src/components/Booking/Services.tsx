@@ -285,8 +285,8 @@ export const Services = ({ error, onChangeError }: Step) => {
         },
         {
           label: "Change Linens",
-          type: "boolean",
-          option_name: "includes_linen_change",
+          type: "count",
+          option_name: "linen_change_count",
           Icon: BedIcon,
           price: prices["change_linens_cost"],
         },

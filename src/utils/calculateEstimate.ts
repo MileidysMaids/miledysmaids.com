@@ -38,7 +38,7 @@ export const calculateEstimate = (props: Partial<CleaningItems>) => {
     includes_baseboard_cleaning = false,
     includes_kitchen_cabinet_cleaning = false,
     includes_bathroom_cabinet_cleaning = false,
-    includes_linen_change = false,
+    linen_change_count = 0,
   } = props;
 
   // Determine base service cost
@@ -51,6 +51,7 @@ export const calculateEstimate = (props: Partial<CleaningItems>) => {
   const additional_costs = [
     { count: bedroom_count, cost: prices.bedroom_cost },
     { count: bathroom_count, cost: prices.bathroom_cost },
+    { count: linen_change_count, cost: prices.change_linens_cost },
     { count: window_count, cost: prices.windows_cost },
     { count: oven_count, cost: prices.oven_cost },
     { count: microwave_count, cost: prices.microwave_cost },
@@ -59,7 +60,6 @@ export const calculateEstimate = (props: Partial<CleaningItems>) => {
     { count: includes_baseboard_cleaning ? 1 : 0, cost: prices.baseboard_cost * square_feet },
     { count: includes_kitchen_cabinet_cleaning ? 1 : 0, cost: prices.kitchen_cab_cost },
     { count: includes_bathroom_cabinet_cleaning ? 1 : 0, cost: prices.bathroom_cab_cost },
-    { count: includes_linen_change ? 1 : 0, cost: prices.change_linens_cost },
     { count: pet_present ? 1 : 0, cost: prices.pet_charge_cost },
   ];
 
@@ -79,7 +79,6 @@ export const calculateEstimate = (props: Partial<CleaningItems>) => {
 
   // Calculate final total
   const total = subtotal + taxes;
-
 
   return { total, taxes, subtotal, discount, before_discount: base_charges } as EstimateTotal;
 };
