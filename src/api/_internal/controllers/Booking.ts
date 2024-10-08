@@ -1,8 +1,12 @@
 import { Request, Response } from "express";
-import moment from "moment";
+import moment from "moment-timezone";
 import { db } from "../db"; // Drizzle DB instance
 import { customer, service, address, slot, booking } from "../db/tables"; // Import schema
 import { eq, and, gte, lte, asc, sql } from "drizzle-orm"; // Importing the eq function
+import "../utils/logger";
+
+// Set timezone globally
+moment.tz.setDefault("America/New_York");
 
 export const createBookingController = async (req: Request, res: Response) => {
   try {
@@ -106,6 +110,11 @@ export const getAllBookedDaysController = async (req: Request, res: Response) =>
   try {
     const startOfTomorrow = moment().startOf("day").toDate();
     const endOfNextMonth = moment().add(1, "month").endOf("day").toDate();
+
+    console.log({
+      startOfTomorrow: `${startOfTomorrow}`,
+      endOfNextMonth: `${endOfNextMonth}`,
+    });
 
     const fullyBookedSlots = await db
       .select({ date: slot.date })

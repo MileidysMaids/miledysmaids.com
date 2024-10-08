@@ -1,11 +1,15 @@
 import type { GatsbyConfig } from "gatsby";
 import dotenv from "dotenv";
+import moment from "moment-timezone";
 
 // Load environment variables
 const paths = [".env.local"];
 if (process.env.NODE_ENV === "development") paths.push(".env.development");
 if (process.env.NODE_ENV === "production") paths.push(".env");
 dotenv.config({ path: paths });
+
+// Set timezone globally
+moment.tz.setDefault("America/New_York");
 
 export default {
   graphqlTypegen: true,

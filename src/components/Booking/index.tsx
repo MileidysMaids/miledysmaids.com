@@ -79,8 +79,8 @@ const steps: StepDefinition[] = [
 ];
 
 export default function Component() {
-  const [currentStep, setCurrentStep] = React.useState(0);
-  const methods = useForm({ shouldUseNativeValidation: true, defaultValues });
+  const [currentStep, setCurrentStep] = React.useState(2);
+  const methods = useForm({ shouldUseNativeValidation: true, defaultValues: defaultValuesTest });
   const [error, setError] = React.useState<StepError>({ error: false, message: "" });
 
   React.useEffect(() => {
