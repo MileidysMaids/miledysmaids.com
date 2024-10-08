@@ -33,7 +33,11 @@ export const createBookingController = async (req: Request, res: Response) => {
       }
 
       // Check if a slot with the same slot_number, date, and time already exists
-      const query = and(eq(slot.slot_number, slotData.slot_number), eq(slot.date, new Date(slotData.date)), eq(slot.time, slotData.time));
+      const query = and(
+        eq(slot.slot_number, slotData.slot_number),
+        eq(slot.date, moment(slotData.date).toDate()),
+        eq(slot.time, slotData.time),
+      );
       const existingSlot = await trx.select().from(slot).where(query).limit(1);
       if (existingSlot.length > 0) throw new Error("Slot already exists for the given time and date");
 
@@ -62,7 +66,7 @@ export const createBookingController = async (req: Request, res: Response) => {
       if (addressResult) addressId = addressResult.id; // Newly created address
 
       // Create the slot
-      const slot_values = { ...slotData, date: new Date(slotData.date) };
+      const slot_values = { ...slotData, date: moment(slotData.date) };
       const [createdSlot] = await trx.insert(slot).values(slot_values).returning({ id: slot.id });
       if (!createdSlot || !createdSlot.id) throw new Error("Failed to create slot.");
 
@@ -108,8 +112,8 @@ export const getAllBookedDaysController = async (req: Request, res: Response) =>
   const requiredTimes: string[] = ["8:00AM", "9:00AM", "10:00AM", "11:00AM", "12:00PM", "1:00PM", "2:00PM"];
 
   try {
-    const startOfTomorrow = moment().startOf("day").toDate();
-    const endOfNextMonth = moment().add(1, "month").endOf("day").toDate();
+    const startOfTomorrow = moment().tz("America/New_York").utc().startOf("day").toDate();
+    const endOfNextMonth = moment().tz("America/New_York").utc().add(1, "month").endOf("day").toDate();
 
     console.log({
       startOfTomorrow: `${startOfTomorrow}`,
