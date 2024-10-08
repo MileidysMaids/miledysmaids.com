@@ -37,6 +37,9 @@ export const Booking = ({ error, onChangeError }: Step) => {
 
   React.useEffect(() => {
     const handleInitialFocusDate = () => {
+      // If no booked days, return tomorrow
+      if (!bookedDays.length) return moment().add(1, "day").format("YYYY-MM-DD");
+
       const fullyBookedDays = bookedDays.map((date) => moment(date));
 
       // Loop through booked days and find the first available date
@@ -44,7 +47,8 @@ export const Booking = ({ error, onChangeError }: Step) => {
         const nextDay = fullyBookedDays[i].clone().add(1, "day");
 
         if (nextDay.isBefore(fullyBookedDays[i + 1], "day")) {
-          return nextDay.format("YYYY-MM-DD"); // Return available date as JS Date object
+          // Return available date as JS Date object
+          return nextDay.format("YYYY-MM-DD");
         }
       }
 
@@ -53,7 +57,7 @@ export const Booking = ({ error, onChangeError }: Step) => {
       return lastFullyBookedDay.clone().add(1, "day").format("YYYY-MM-DD");
     };
 
-    if (bookedDays && bookedDays.length > 0) setSelectedDate(handleInitialFocusDate() as never);
+    setSelectedDate(handleInitialFocusDate() as never);
   }, [bookedDays]);
 
   React.useEffect(() => {

@@ -46,7 +46,7 @@ const defaultValuesTest: FormValues = {
     includes_baseboard_cleaning: false,
     includes_kitchen_cabinet_cleaning: false,
     includes_bathroom_cabinet_cleaning: false,
-    includes_linen_change: false,
+    linen_change_count: 3,
     includes_basement: false,
     pet_present: false,
     square_feet: 1000,
@@ -107,7 +107,7 @@ export default function Component() {
       .then((res) => res.json())
       .then(({ success, message, error }) => {
         if (!success) return setError({ error, message });
-        window.location.href = "/service/success";
+        // window.location.href = "/service/success";
       });
   };
 
