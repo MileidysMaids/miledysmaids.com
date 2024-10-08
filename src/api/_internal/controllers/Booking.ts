@@ -7,6 +7,7 @@ import "../utils/logger";
 
 // Set timezone globally
 moment.tz.setDefault("America/New_York");
+// const localTime = moment.tz(date, "America/New_York");
 
 export const createBookingController = async (req: Request, res: Response) => {
   try {
@@ -129,7 +130,7 @@ export const getAllBookedDaysController = async (req: Request, res: Response) =>
 
     const slotsByDate = fullyBookedSlots.reduce(
       (acc, { date }) => {
-        const localTime = moment(date).local();
+        const localTime = moment(date).tz("America/New_York");
         const dateKey = localTime.format("YYYY-MM-DD");
         const timeKey = localTime.format("hh:mm A");
 
