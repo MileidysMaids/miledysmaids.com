@@ -107,7 +107,7 @@ export default function Component() {
       .then((res) => res.json())
       .then(({ success, message, error }) => {
         if (!success) return setError({ error, message });
-        window.location.href = "/service/success";
+        // window.location.href = "/service/success";
       });
   };
 

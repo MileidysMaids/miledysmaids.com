@@ -1,5 +1,6 @@
 import { defineConfig } from "drizzle-kit";
 
+// @ts-ignore
 export default defineConfig({
   schema: "./src/api/_internal/db/tables.ts",
   out: "./drizzle",
