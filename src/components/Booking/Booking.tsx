@@ -1,5 +1,6 @@
 import React, { SyntheticEvent } from "react";
 import { HorizontalDatePicker } from "../HorizontalDatePicker";
+import { motion } from "framer-motion";
 import moment from "moment";
 import { useFormContext } from "react-hook-form";
 import { BedFrontIcon, BuildingIcon, DropletIcon, HomeIcon, RuleIcon, UserIcon, BathIcon, DoorIcon, CalendarIcon } from "@/icons/Icons";
@@ -149,91 +150,38 @@ export const Booking = ({ error, onChangeError }: Step) => {
       )}
 
       <div className="container flex flex-col gap-14">
-        {isDesktop && (
+        {/* {isDesktop && (
           <HorizontalDatePicker disabledDays={bookedDays} onSelectDate={setSelectedDate} selected={selectedDate} format="YYYY-MM-DD" />
-        )}
+        )} */}
 
         {isMobile && (
-          <Calendar
-            disabled={handleDisabled}
-            mode="single"
-            selected={moment(selectedDate).toDate()}
-            onSelect={(date) => setSelectedDate(moment(date).format("YYYY-MM-DD"))}
-            className="self-center rounded-xl border"
-          />
+          <div className="px-10">
+            <Calendar
+              disabled={handleDisabled}
+              mode="single"
+              selected={moment(selectedDate).toDate()}
+              onSelect={(date) => setSelectedDate(moment(date).format("YYYY-MM-DD"))}
+              className="self-center rounded-xl border p-10 shadow-xl"
+            />
+          </div>
         )}
 
         <div className="flex flex-row items-center justify-center gap-10">
           {isDesktop && (
-            <div className="card border bg-base-100 shadow-xl">
-              <div className="card-body">
-                <div>
-                  <div className="flex flex-col gap-5">
-                    <p className="text-xl font-bold uppercase">Performing services</p>
-                    <span className="flex flex-row items-center gap-2">
-                      <UserIcon className="h-6 w-6" />
-                      <div>
-                        <p className="font-bold">{contact.full_name}</p>
-                        <p>{contact.phone}</p>
-                      </div>
-                    </span>
-
-                    <span className="flex flex-row items-center gap-2">
-                      {service.cleaning_category === CleaningCategory.Residential ? (
-                        <HomeIcon className="h-6 w-6" />
-                      ) : (
-                        <BuildingIcon className="h-6 w-6" />
-                      )}
-                      <div className="flex flex-col">
-                        <span className="font-bold">{service.cleaning_category}</span>
-                        <p>
-                          {address.street} {address.unit} <br />
-                          {address.city} {address.state} {address.zip}
-                        </p>
-                      </div>
-                    </span>
-
-                    <span className="flex flex-row items-center gap-2">
-                      <RuleIcon className="h-6 w-6" />
-                      <span className="font-bold">
-                        {service.square_feet - 499} ~ {service.square_feet} /sqft
-                      </span>
-                    </span>
-                    {service.bedroom_count && (
-                      <span className="flex flex-row items-center gap-2">
-                        <BedFrontIcon className="h-6 w-6" />
-                        <span className="font-bold">
-                          {service.bedroom_count} Bedroom{service.bedroom_count > 1 ? "s" : ""}
-                        </span>
-                      </span>
-                    )}
-                    <span className="flex flex-row items-center gap-2">
-                      {service.cleaning_category === CleaningCategory.Residential && <BathIcon className="h-6 w-6" />}
-                      {service.cleaning_category === CleaningCategory.Commercial && <DoorIcon className="h-6 w-6" />}
-                      <span className="font-bold">
-                        {service.bathroom_count} Bathroom{(service.bathroom_count ?? 0) > 1 ? "s" : ""}
-                      </span>
-                    </span>
-
-                    {service.has_multiple_toilets && (
-                      <span className="flex flex-row items-center gap-2">
-                        <DropletIcon className="h-6 w-6" />
-                        <span className="font-bold">
-                          {service.toilet_count} Toilet{(service.toilet_count ?? 0) > 1 ? "s" : ""}
-                        </span>
-                      </span>
-                    )}
-                  </div>
-
-                  <span className="divider" />
-                </div>
-              </div>
+            <div className="h-[500px] w-[600px] rounded-xl border p-10 shadow-2xl">
+              <Calendar
+                disabled={handleDisabled}
+                mode="single"
+                selected={moment(selectedDate).toDate()}
+                onSelect={(date) => setSelectedDate(moment(date).format("YYYY-MM-DD"))}
+                className="self-center"
+              />
             </div>
           )}
 
-          <div className="flex flex-col gap-2">
+          <div className="flex h-full w-64 flex-col gap-2">
             {isLoading && (
-              <div className="flex w-60 items-center justify-center">
+              <div className="flex items-center justify-center">
                 <span className="loading loading-spinner loading-md" />
                 <div className="ml-2 flex flex-col gap-2">
                   <p>Getting available times</p>
@@ -241,6 +189,7 @@ export const Booking = ({ error, onChangeError }: Step) => {
                 </div>
               </div>
             )}
+            {!isLoading && <h1 className="mb-10 self-start text-xl font-bold">Pick an available time</h1>}
             {!isLoading &&
               times.map((momentTime, index) => {
                 const time = moment(momentTime, "YYYY-MM-DD hh:mm A").format("hh:mm A");
@@ -249,22 +198,33 @@ export const Booking = ({ error, onChangeError }: Step) => {
                 const booked = bookedSlots?.includes(slot_number);
 
                 return (
-                  <div className={["tooltip-secondary", booked && "tooltip"].join(" ")} data-tip="This time is already booked.">
+                  <motion.div
+                    key={time}
+                    initial={{ x: 10, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: index * 0.07 }}
+                    className={["tooltip-secondary", booked && "tooltip"].join(" ")}
+                    data-tip="This time is already booked.">
                     <button
                       key={time}
                       type="button"
                       disabled={booked}
                       onClick={() => setSelectedSlot({ slot_number, time, date })}
-                      className={["btn btn-outline btn-wide text-lg", selectedSlot?.time === time && "btn-active scale-105"].join(" ")}>
+                      className={["btn btn-outline btn-wide text-lg shadow-lg", selectedSlot?.time === time && "btn-active scale-105"].join(
+                        " ",
+                      )}>
                       {time}
                     </button>
-                  </div>
+                  </motion.div>
                 );
               })}
           </div>
         </div>
 
-        <button type="button" onClick={handleOpenModal} className={["btn btn-wide mt-10 self-center", !selectedSlot && "hidden"].join(" ")}>
+        <button
+          type="button"
+          onClick={handleOpenModal}
+          className={["btn btn-wide mt-10 self-center", !selectedSlot && "btn-disabled"].join(" ")}>
           Confirm Schedule
         </button>
 

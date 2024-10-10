@@ -1,5 +1,4 @@
 import * as React from "react";
-import "@/styles/background.css";
 import shine from "../images/svg/shine.svg";
 import landing_page_photo_1 from "@/images/landing-page-1.jpg";
 import landing_page_photo_2 from "@/images/landing-page-2.jpg";
