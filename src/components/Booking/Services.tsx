@@ -1,6 +1,7 @@
 import { useEstimate } from "@/hooks/useEstimate";
 import React from "react";
 import { useFormContext } from "react-hook-form";
+import { motion } from "framer-motion";
 import {
   MicrowaveIcon,
   PlusIcon,
@@ -191,7 +192,8 @@ const ServiceDetails = ({ service, estimate }: { service: CleaningItems; estimat
   return <ServiceDetailsDesktop service={service} estimate={estimate} />;
 };
 
-const Service = ({ option_name, label, handleOptionChange, map, price, per_square, Icon, type }: ServiceProps) => {
+const Service = ({ option_name, label, handleOptionChange, map, index, Icon, type }: ServiceProps & { index: number }) => {
+  const { isMobile } = useBreakpoint();
   const { register, setValue } = useFormContext();
   const option_value: number = map[option_name] as number;
   const option_value_form_context = `service.${option_name}`;
@@ -227,13 +229,28 @@ const Service = ({ option_name, label, handleOptionChange, map, price, per_squar
     </button>
   );
 
+  const handleOnChecked = (checked: boolean) => {
+    if (type === "boolean") {
+      handleOptionChange(option_name, checked);
+      setValue(option_value_form_context, checked);
+    }
+  };
+
+  const animations = {
+    initial: isMobile ? { x: 30, opacity: 0 } : { y: -10, opacity: 0 },
+    animate: isMobile ? { x: 0, opacity: 1 } : { y: 0, opacity: 1 },
+    transition: isMobile ? { delay: 0.5 + index * 0.07 } : { delay: 0.5 + index * 0.08 },
+  };
+
   return (
-    <div
+    <motion.div
+      key={option_name}
+      {...animations}
       className={[
-        "card flex cursor-pointer select-none flex-row items-center justify-between gap-3 rounded-lg border p-4 text-center transition-all lg:aspect-square lg:justify-center",
+        "card flex cursor-pointer select-none flex-row items-center justify-between gap-3 rounded-xl border p-4 text-center lg:aspect-square lg:justify-center",
         option_value > 0 ? "bg-primary text-white" : "",
       ].join(" ")}
-      onClick={() => type === "boolean" && handleOptionChange(option_name, !option_value)}>
+      onClick={() => handleOnChecked(!option_value)}>
       <div className="flex flex-row items-center justify-center gap-2 rounded-lg lg:flex-col">
         {Icon && <Icon className="h-12 w-12" />}
         {type === "count" && (
@@ -253,17 +270,20 @@ const Service = ({ option_name, label, handleOptionChange, map, price, per_squar
           </div>
         )}
         <span>{label}</span>
+
         <span
           className={["font-bold text-white duration-300", type === "boolean" && option_value > 0 ? "opacity-100" : "opacity-0"].join(" ")}>
           {type === "boolean" && option_value > 0 ? "Yes" : ""}
         </span>
       </div>
 
-      <span className="flex flex-row gap-3">
-        {type === "count" && <MinusButton className="block lg:hidden" />}
-        {type === "count" && <PlusButton className="block lg:hidden" />}
-      </span>
-    </div>
+      {type === "count" && (
+        <span className="flex flex-row gap-3 lg:hidden">
+          <MinusButton className="block" />
+          <PlusButton className="block" />
+        </span>
+      )}
+    </motion.div>
   );
 };
 
@@ -271,6 +291,7 @@ export const Services = ({ error, onChangeError }: Step) => {
   const { calculate, estimate, prices } = useEstimate();
   const { register, getValues } = useFormContext();
 
+  const modalRef = React.useRef<HTMLDialogElement>(null);
   const { service } = React.useMemo(getValues as unknown as () => FormValues, [getValues]);
   const [customOptions, setCustomOptions] = React.useState({ ...service });
 
@@ -332,8 +353,8 @@ export const Services = ({ error, onChangeError }: Step) => {
   );
 
   return (
-    <div className="flex justify-center py-12">
-      <div className="container grid grid-cols-1 gap-20 px-8 lg:grid-cols-7 lg:gap-8">
+    <div className="flex justify-center py-6">
+      <div className="container grid grid-cols-1 gap-20 px-4 md:px-0 lg:grid-cols-7 lg:gap-8">
         <div className="col-span-1 grid grid-cols-1 gap-20 lg:col-span-5 lg:grid-cols-5">
           {/* Services */}
           <div className="col-span-1 flex flex-col gap-1 lg:col-span-5">
@@ -342,18 +363,17 @@ export const Services = ({ error, onChangeError }: Step) => {
               <p className="text-muted-foreground">Choose the options that fit your home's needs.</p>
             </div>
             <div className="col-span-5 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5 lg:gap-6">
-              {options.map(({ type, option_name, ...props }) => {
-                return (
-                  <Service
-                    type={type}
-                    key={option_name}
-                    option_name={option_name}
-                    map={customOptions}
-                    handleOptionChange={handleOptionChange}
-                    {...props}
-                  />
-                );
-              })}
+              {options.map(({ type, option_name, ...props }, index) => (
+                <Service
+                  key={option_name}
+                  index={index}
+                  type={type}
+                  option_name={option_name}
+                  map={customOptions}
+                  handleOptionChange={handleOptionChange}
+                  {...props}
+                />
+              ))}
             </div>
           </div>
 
@@ -375,7 +395,7 @@ export const Services = ({ error, onChangeError }: Step) => {
         <div className="col-span-1 flex flex-col gap-4 lg:col-span-2 lg:flex-col lg:gap-8">
           <ServiceDetails service={service} estimate={estimate} />
 
-          <div className="grid grid-cols-5 gap-2">
+          {/* <div className="grid grid-cols-5 gap-2">
             <input
               className="input input-bordered col-span-5"
               type="text"
@@ -419,10 +439,68 @@ export const Services = ({ error, onChangeError }: Step) => {
               placeholder="Phone Number"
               {...register("contact.phone", { required: "Please enter your phone" })}
             />
-          </div>
+          </div> */}
 
-          <button type="submit" className="btn text-xl">
-            Book Now
+          <dialog ref={modalRef} id="modal" className="modal">
+            <form method="dialog" className="modal-backdrop">
+              <button>close</button>
+            </form>
+
+            <div className="modal-box grid grid-cols-5 gap-6">
+              <h3 className="col-span-5 text-lg font-bold">Contact Information</h3>
+
+              <input
+                className="input input-bordered col-span-5"
+                type="text"
+                placeholder="Full Name"
+                {...register("contact.full_name", { required: "Please enter your full name" })}
+              />
+              <input
+                className="input input-bordered col-span-4"
+                type="text"
+                placeholder="Service Address"
+                {...register("address.street", { required: "Please enter your address" })}
+              />
+              <input className="input input-bordered col-span-1" type="text" placeholder="Unit #" {...register("address.unit")} />
+              <input
+                className="input input-bordered col-span-3"
+                type="text"
+                placeholder="City"
+                {...register("address.city", { required: "Please enter your city" })}
+              />
+              <input
+                className="input input-bordered col-span-1"
+                type="text"
+                placeholder="State"
+                {...register("address.state", { required: "Please enter your state" })}
+              />
+              <input
+                className="input input-bordered col-span-1"
+                type="text"
+                placeholder="Zip"
+                {...register("address.zip", { required: "Please enter your zip" })}
+              />
+              <input
+                className="input input-bordered col-span-5"
+                type="email"
+                placeholder="Email"
+                {...register("contact.email", { required: "Please enter your email" })}
+              />
+              <input
+                className="input input-bordered col-span-5"
+                type="tel"
+                placeholder="Phone Number"
+                {...register("contact.phone", { required: "Please enter your phone" })}
+              />
+
+              <button type="submit" onClick={() => modalRef.current?.close()} className="btn btn-primary col-span-5 text-xl">
+                Book Now
+              </button>
+            </div>
+          </dialog>
+
+          <button type="button" onClick={() => modalRef.current?.showModal()} className="btn btn-outline btn-primary text-xl">
+            Continue to booking
           </button>
         </div>
       </div>

@@ -60,7 +60,7 @@
     "postgres": "^3.4.4",
     "react": "^18.2.0",
     "react-big-calendar": "^1.13.4",
-    "react-day-picker": "8.10.1",
+    "react-day-picker": "^9.1.3",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.52.2",
     "react-responsive": "^10.0.0",

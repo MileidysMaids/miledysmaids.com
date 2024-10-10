@@ -1,7 +1,7 @@
 import React from "react";
 import { Logo } from "./Logo.js";
 
-export const NavBar = ({ children, ...props }) => {
+export const NavBar = ({ children, ...props }: React.PropsWithChildren) => {
   return (
     <div className="drawer" {...props}>
       <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />

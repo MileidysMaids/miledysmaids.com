@@ -1,5 +1,6 @@
 import React from "react";
 import { useForm, FormProvider, FieldValues } from "react-hook-form";
+import { AnimatePresence, motion } from "framer-motion";
 import { Services } from "./Services";
 import { Cleaning } from "./Cleaning";
 import { Booking } from "./Booking";
@@ -7,6 +8,7 @@ import { Booking } from "./Booking";
 // Types
 import { CleaningCategory, CleaningItems, CleaningSubCategory } from "@/types/cleaningTypes";
 import { FormValues } from "@/types/bookingTypes";
+import { ChevronLeftIcon } from "lucide-react";
 
 type StepDefinition = {
   name: string;
@@ -81,6 +83,7 @@ const steps: StepDefinition[] = [
 export default function Component() {
   const [currentStep, setCurrentStep] = React.useState(0);
   const methods = useForm({ shouldUseNativeValidation: true, defaultValues });
+  const btnRef = React.useRef<HTMLButtonElement>();
   const [error, setError] = React.useState<StepError>({ error: false, message: "" });
 
   React.useEffect(() => {
@@ -99,6 +102,28 @@ export default function Component() {
     };
   }, []);
 
+  React.useEffect(() => {
+    // @ts-ignore
+    const navigationType = window.performance.getEntriesByType("navigation")[0]?.type; // Check where did the user come from
+
+    // Check if the page was refreshed
+    const isPageReload = navigationType === "reload";
+
+    if (isPageReload) {
+      // Load form data from local storage
+      const storedData = JSON.parse(localStorage.getItem(`formData`) ?? `{}`);
+      const step = JSON.parse(localStorage.getItem("step") ?? "{}");
+
+      // Set form data
+      methods.reset(storedData);
+      setCurrentStep(step - 1);
+    } else {
+      // Clear local storage
+      localStorage.removeItem("formData");
+      localStorage.setItem(`step`, JSON.stringify(currentStep + 1));
+    }
+  }, []);
+
   const handleSubmit = async (formData: FieldValues) => {
     fetch("/api/booking/slots", {
       body: JSON.stringify(formData),
@@ -107,11 +132,23 @@ export default function Component() {
       .then((res) => res.json())
       .then(({ success, message, error }) => {
         if (!success) return setError({ error, message });
-        // window.location.href = "/service/success";
+
+        // Clear local storage
+        localStorage.removeItem("formData");
+        localStorage.removeItem("step");
+
+        window.location.href = "/service/success";
       });
   };
 
   const handleNext = (data: FieldValues) => {
+    // Get data from local storage
+    const storedData = JSON.parse(localStorage.getItem(`formData`) ?? `{}`);
+
+    // Save data to local storage
+    localStorage.setItem(`formData`, JSON.stringify({ ...storedData, ...data }));
+    localStorage.setItem(`step`, JSON.stringify(currentStep + 2));
+
     // If the current step is the last step, submit the form
     if (currentStep + 1 === steps.length) return handleSubmit(data);
 
@@ -127,6 +164,10 @@ export default function Component() {
   };
 
   const handleBack = () => {
+    // Save data to local storage
+    localStorage.setItem(`formData`, JSON.stringify(methods.getValues()));
+    localStorage.setItem(`step`, JSON.stringify(currentStep));
+
     // Move back and update history
     setCurrentStep((prevStep) => {
       const newStep = prevStep - 1;
@@ -139,30 +180,68 @@ export default function Component() {
     setError(error);
   };
 
+  const handleStepClick = (clickedStep: number) => {
+    const savedStep = JSON.parse(localStorage.getItem("step") ?? "1");
+
+    // Don't go beyond the last step
+    if (clickedStep > savedStep) return;
+
+    // Don't save the form state if the user clicked on the same step
+    // if (clickedStep !== savedStep) btnRef.current?.click(); // Save form state
+
+    const index = clickedStep - 1;
+    setCurrentStep(index);
+  };
+
   return (
     <FormProvider {...methods}>
-      <div className="flex w-dvw items-center justify-center">
-        <ul className="steps w-full max-w-xl overflow-visible lg:w-1/2">
-          {steps.map((step, index) => (
-            <li
-              key={index}
-              {...(error.error ? { "data-content": "!" } : {})}
-              className={[
-                index <= currentStep ? "step step-primary" : "step",
-                index === currentStep && error.error ? "step-error" : "",
-              ].join(" ")}>
-              {step.name}
-            </li>
-          ))}
-        </ul>
-      </div>
+      <div className="flex w-dvw flex-col items-center justify-center">
+        <div className="relative my-10 flex w-full max-w-screen-xl items-center justify-center bg-red-500">
+          {/* Go back */}
+          <div className="absolute left-0 hidden md:block">
+            <button className="btn btn-outline" disabled={currentStep === 0} onClick={handleBack}>
+              <ChevronLeftIcon className="h-15 w-15" />
+              Go Back
+            </button>
+          </div>
 
-      <form onSubmit={methods.handleSubmit(handleNext)} className="flex w-dvw flex-1 flex-col">
-        {steps.map(
-          ({ component: Step }, index) =>
-            currentStep === index && <Step key={index} onNext={handleNext} onBack={handleBack} error={error} onChangeError={handleError} />,
-        )}
-      </form>
+          <ul className="steps absolute w-full max-w-xl overflow-visible lg:w-1/2">
+            {steps.map((step, index) => (
+              <li
+                key={index}
+                {...(error.error ? { "data-content": "!" } : {})}
+                // onClick={() => handleStepClick(index + 1)}
+                className={[
+                  index <= currentStep ? "step step-primary" : "step",
+                  index === currentStep && error.error ? "step-error" : "",
+                ].join(" ")}>
+                {step.name}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <form onSubmit={methods.handleSubmit(handleNext)} className="relative flex w-dvw max-w-screen-xl flex-1 flex-col">
+          <AnimatePresence>
+            {steps.map(
+              ({ component: Step }, index) =>
+                currentStep === index && (
+                  <motion.div
+                    key={index}
+                    initial={{ x: 10, opacity: 0, position: "absolute", top: 0, left: 0, width: "100%" }}
+                    animate={{ x: 0, opacity: 1, position: "relative", top: 0, left: 0, width: "100%" }}
+                    exit={{ x: -10, opacity: 0, position: "absolute", top: 0, left: 0, width: "100%" }}
+                    transition={{ duration: 0.5, ease: "easeInOut", delay: 0.5 }}
+                    style={{ width: "100%" }}>
+                    <Step onNext={handleNext} onBack={handleBack} error={error} onChangeError={handleError} />
+                  </motion.div>
+                ),
+            )}
+          </AnimatePresence>
+
+          {/* Side door button for submit */}
+          {/* <button ref={btnRef} type="submit" className="hidden" /> */}
+        </form>
+      </div>
     </FormProvider>
   );
 }

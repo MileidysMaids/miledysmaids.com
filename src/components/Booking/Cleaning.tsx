@@ -74,16 +74,23 @@ export const Cleaning = () => {
   const handleCardChange = (value: CleaningCategory) => {
     if (modalRef.current) {
       modalRef.current.showModal();
-      reset({ service: { cleaning_category: value, service_frequency: "ONE_TIME" } } as Partial<FormValues>);
+
+      // Load data from local storage
+      const storedData = JSON.parse(localStorage.getItem(`formData`) ?? `{}`);
+
+      reset({
+        ...storedData,
+        service: { cleaning_category: value, service_frequency: "ONE_TIME", ...storedData.service },
+      } as Partial<FormValues>);
       setSelected(value);
     }
   };
 
   const handleContactForm = () => {
-    if (!(selected === CleaningCategory.Other)) return;
-
-    // TODO: Send contact form
-    console.log("Contact form submitted");
+    if (!(selected === CleaningCategory.Other)) {
+      modalRef.current?.close();
+      return;
+    }
 
     window.location.href = "/";
   };
