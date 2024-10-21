@@ -10,7 +10,7 @@ export const NavBar = ({ children, ...props }: { children?: React.ReactNode; [ke
 
   return (
     <div className="left-0 top-0 z-10 flex w-dvw lg:absolute lg:justify-center">
-      <div className="drawer132" {...props}>
+      <div className="drawer" {...props}>
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle md:hidden" />
 
         <div className="drawer-content flex h-full flex-col">
