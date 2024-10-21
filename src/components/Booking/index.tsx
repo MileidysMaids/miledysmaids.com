@@ -9,6 +9,7 @@ import { Booking } from "./Booking";
 import { CleaningCategory, CleaningItems, CleaningSubCategory } from "@/types/cleaningTypes";
 import { FormValues } from "@/types/bookingTypes";
 import { ChevronLeftIcon } from "lucide-react";
+import { safeLocalStorage } from "@/utils/localStorage";
 
 type StepDefinition = {
   name: string;
@@ -111,16 +112,16 @@ export default function Component() {
 
     if (isPageReload) {
       // Load form data from local storage
-      const storedData = JSON.parse(localStorage.getItem(`formData`) ?? `{}`);
-      const step = JSON.parse(localStorage.getItem("step") ?? "{}");
+      const storedData = JSON.parse(safeLocalStorage.getItem(`formData`) ?? `{}`);
+      const step = JSON.parse(safeLocalStorage.getItem("step") ?? "{}");
 
       // Set form data
       methods.reset(storedData);
       setCurrentStep(step - 1);
     } else {
       // Clear local storage
-      localStorage.removeItem("formData");
-      localStorage.setItem(`step`, JSON.stringify(currentStep + 1));
+      safeLocalStorage.removeItem("formData");
+      safeLocalStorage.setItem(`step`, JSON.stringify(currentStep + 1));
     }
   }, []);
 
@@ -134,8 +135,8 @@ export default function Component() {
         if (!success) return setError({ error, message });
 
         // Clear local storage
-        localStorage.removeItem("formData");
-        localStorage.removeItem("step");
+        safeLocalStorage.removeItem("formData");
+        safeLocalStorage.removeItem("step");
 
         window.location.href = "/service/success";
       });
@@ -143,11 +144,11 @@ export default function Component() {
 
   const handleNext = (data: FieldValues) => {
     // Get data from local storage
-    const storedData = JSON.parse(localStorage.getItem(`formData`) ?? `{}`);
+    const storedData = JSON.parse(safeLocalStorage.getItem(`formData`) ?? `{}`);
 
     // Save data to local storage
-    localStorage.setItem(`formData`, JSON.stringify({ ...storedData, ...data }));
-    localStorage.setItem(`step`, JSON.stringify(currentStep + 2));
+    safeLocalStorage.setItem(`formData`, JSON.stringify({ ...storedData, ...data }));
+    safeLocalStorage.setItem(`step`, JSON.stringify(currentStep + 2));
 
     // If the current step is the last step, submit the form
     if (currentStep + 1 === steps.length) return handleSubmit(data);
@@ -165,8 +166,8 @@ export default function Component() {
 
   const handleBack = () => {
     // Save data to local storage
-    localStorage.setItem(`formData`, JSON.stringify(methods.getValues()));
-    localStorage.setItem(`step`, JSON.stringify(currentStep));
+    safeLocalStorage.setItem(`formData`, JSON.stringify(methods.getValues()));
+    safeLocalStorage.setItem(`step`, JSON.stringify(currentStep));
 
     // Move back and update history
     setCurrentStep((prevStep) => {
@@ -181,7 +182,7 @@ export default function Component() {
   };
 
   const handleStepClick = (clickedStep: number) => {
-    const savedStep = JSON.parse(localStorage.getItem("step") ?? "1");
+    const savedStep = JSON.parse(safeLocalStorage.getItem("step") ?? "1");
 
     // Don't go beyond the last step
     if (clickedStep > savedStep) return;
@@ -191,7 +192,7 @@ export default function Component() {
   };
 
   const isBlocked = (clickedStep: number) => {
-    const savedStep = JSON.parse(localStorage.getItem("step") ?? "1");
+    const savedStep = JSON.parse(safeLocalStorage.getItem("step") ?? "1");
     return clickedStep > savedStep;
   };
 

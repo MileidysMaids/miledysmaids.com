@@ -13,6 +13,9 @@ moment.tz.setDefault("America/New_York");
 
 export default {
   graphqlTypegen: true,
+  flags: {
+    DEV_SSR: true,
+  },
   siteMetadata: {
     title: `Mileidy's Maids`,
     siteUrl: `https://www.yourdomain.tld`,
