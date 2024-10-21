@@ -186,11 +186,13 @@ export default function Component() {
     // Don't go beyond the last step
     if (clickedStep > savedStep) return;
 
-    // Don't save the form state if the user clicked on the same step
-    // if (clickedStep !== savedStep) btnRef.current?.click(); // Save form state
-
     const index = clickedStep - 1;
     setCurrentStep(index);
+  };
+
+  const isBlocked = (clickedStep: number) => {
+    const savedStep = JSON.parse(localStorage.getItem("step") ?? "1");
+    return clickedStep > savedStep;
   };
 
   return (
@@ -210,8 +212,9 @@ export default function Component() {
               <li
                 key={index}
                 {...(error.error ? { "data-content": "!" } : {})}
-                // onClick={() => handleStepClick(index + 1)}
+                onClick={() => handleStepClick(index + 1)}
                 className={[
+                  isBlocked(index + 1) ? "cursor-not-allowed" : "cursor-pointer",
                   index <= currentStep ? "step step-primary" : "step",
                   index === currentStep && error.error ? "step-error" : "",
                 ].join(" ")}>
