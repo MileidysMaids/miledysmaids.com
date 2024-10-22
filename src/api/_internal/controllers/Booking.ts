@@ -4,14 +4,69 @@ import { db } from "../db"; // Drizzle DB instance
 import { customer, service, address, slot, booking } from "../db/tables"; // Import schema
 import { eq, and, gte, lte, asc, sql } from "drizzle-orm"; // Importing the eq function
 import "../utils/logger";
+import { FormValues } from "@/types/bookingTypes";
 
 // Set timezone globally
 moment.tz.setDefault("America/New_York");
 // const localTime = moment.tz(date, "America/New_York");
 
+const sendDiscordMessage = async (message: any) => {
+  const channelId = "1234565272892084236"; // Bookings channel ID
+  const botToken = process.env.DISCORD_BOT_TOKEN;
+
+  if (!botToken) throw new Error("No Discord Webhook URL set in environment variables");
+
+  // Prepare the message payload
+  const data = {
+    content: "A new booking has been submitted!",
+    embeds: [
+      {
+        title: "New Booking",
+        fields: [
+          { name: "Name", value: message.contact.full_name || "N/A", inline: true },
+          { name: "Email", value: message.contact.email || "N/A", inline: true },
+          { name: "Phone", value: message.contact.phone || "N/A", inline: true },
+          {
+            name: "Address",
+            value: `${message.address.street || "N/A"}, ${message.address.city || "N/A"}, ${message.address.state || "N/A"} ${message.address.zip || "N/A"}`,
+            inline: true,
+          },
+          { name: "Service Category", value: message.service.cleaning_category || "N/A", inline: true },
+          { name: "Service Type", value: message.service.cleaning_sub_category || "N/A", inline: true },
+          { name: "Square Feet", value: message.service.square_feet?.toString() || "N/A", inline: true },
+          { name: "Service Frequency", value: message.service.service_frequency || "N/A", inline: true },
+          { name: "Window Count", value: message.service.window_count?.toString() || "N/A", inline: true },
+          { name: "Bedroom Count", value: message.service.bedroom_count?.toString() || "N/A", inline: true },
+          { name: "Bathroom Count", value: message.service.bathroom_count?.toString() || "N/A", inline: true },
+          { name: "Refrigerator Count", value: message.service.refrigerator_count?.toString() || "N/A", inline: true },
+          { name: "Oven Count", value: message.service.oven_count?.toString() || "N/A", inline: true },
+          { name: "Baseboard Cleaning", value: message.service.includes_baseboard_cleaning ? "Yes" : "No", inline: true },
+          { name: "Kitchen Cabinet Cleaning", value: message.service.includes_kitchen_cabinet_cleaning ? "Yes" : "No", inline: true },
+          { name: "Linen Change Count", value: message.service.linen_change_count?.toString() || "N/A", inline: true },
+          { name: "Slot Date", value: moment(message.slot.date).format("MMMM Do, YYYY"), inline: true },
+          { name: "Slot Time", value: message.slot.time || "N/A", inline: true },
+        ],
+      },
+    ],
+  };
+
+  // Make the POST request to the Discord API to send a message
+  const response = await fetch(`https://discord.com/api/v9/channels/${channelId}/messages`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bot ${botToken}`, // Auth header with bot token
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) throw new Error(`Failed to send message: ${response.status} ${response.statusText}`);
+};
+
 export const createBookingController = async (req: Request, res: Response) => {
   try {
-    const { address: addressData, contact, service: serviceData, slot: slotData } = JSON.parse(req.body);
+    const form = JSON.parse(req.body);
+    const { address: addressData, contact, service: serviceData, slot: slotData } = form;
 
     // Start transaction
     await db.transaction(async (trx) => {
@@ -77,7 +132,11 @@ export const createBookingController = async (req: Request, res: Response) => {
       const [createdBooking] = await trx.insert(booking).values(booking_values).returning({ id: booking.id });
       if (!createdBooking || !createdBooking.id) throw new Error("Failed to create booking.");
 
-      // Commit transaction (happens automatically in most ORMs if no error occurs)
+      // Send notification to workers
+      sendDiscordMessage(form);
+
+      // Send notification to customer
+
       return res.status(201).json({ success: true, message: "Booking created successfully", data: createdBooking });
     });
   } catch (error: any) {

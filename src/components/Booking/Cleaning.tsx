@@ -4,6 +4,8 @@ import { useFormContext } from "react-hook-form";
 import { facilitiesSubCategories, residentialSubCategories, workplaceSubCategories } from "@/utils/calculateEstimate";
 import { CleaningCategory } from "@/types/cleaningTypes";
 import { FormValues } from "@/types/bookingTypes";
+import { motion } from "framer-motion";
+import { safeLocalStorage } from "@/utils/localStorage";
 
 const Card = (props: { children: React.ReactNode; className?: string; selected?: boolean }) => {
   const { children, className, selected, ...rest } = props;
@@ -76,7 +78,7 @@ export const Cleaning = () => {
       modalRef.current.showModal();
 
       // Load data from local storage
-      const storedData = JSON.parse(localStorage.getItem(`formData`) ?? `{}`);
+      const storedData = JSON.parse(safeLocalStorage.getItem(`formData`) ?? `{}`);
 
       reset({
         ...storedData,
@@ -104,32 +106,38 @@ export const Cleaning = () => {
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <CardDetails
-              icon={<HomeIcon className="h-10 w-10" />}
-              selected={selected === CleaningCategory.Residential}
-              type={CleaningCategory.Residential}
-              handleCardChange={handleCardChange}
-              title="Residential"
-              description="Get a quote for your residential cleaning needs."
-            />
+            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 1 + 1 * 0.3 }}>
+              <CardDetails
+                icon={<HomeIcon className="h-10 w-10" />}
+                selected={selected === CleaningCategory.Residential}
+                type={CleaningCategory.Residential}
+                handleCardChange={handleCardChange}
+                title="Residential"
+                description="Get a quote for your residential cleaning needs."
+              />
+            </motion.div>
 
-            <CardDetails
-              icon={<BuildingIcon className="h-10 w-10" />}
-              selected={selected === CleaningCategory.Commercial}
-              type={CleaningCategory.Commercial}
-              handleCardChange={handleCardChange}
-              title="Commercial"
-              description="Keep your workspace clean and professional."
-            />
+            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 1 + 2 * 0.3 }}>
+              <CardDetails
+                icon={<BuildingIcon className="h-10 w-10" />}
+                selected={selected === CleaningCategory.Commercial}
+                type={CleaningCategory.Commercial}
+                handleCardChange={handleCardChange}
+                title="Commercial"
+                description="Keep your workspace clean and professional."
+              />
+            </motion.div>
 
-            <CardDetails
-              icon={<StoreIcon className="h-10 w-10" />}
-              selected={selected === CleaningCategory.Other}
-              type={CleaningCategory.Other}
-              handleCardChange={handleCardChange}
-              title="Facilities & Events"
-              description="Keep your facilities and event spaces clean and safe."
-            />
+            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 1 + 3 * 0.3 }}>
+              <CardDetails
+                icon={<StoreIcon className="h-10 w-10" />}
+                selected={selected === CleaningCategory.Other}
+                type={CleaningCategory.Other}
+                handleCardChange={handleCardChange}
+                title="Facilities & Events"
+                description="Keep your facilities and event spaces clean and safe."
+              />
+            </motion.div>
           </div>
         </div>
       </div>

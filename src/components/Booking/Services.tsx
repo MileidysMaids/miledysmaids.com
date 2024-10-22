@@ -493,7 +493,7 @@ export const Services = ({ error, onChangeError }: Step) => {
                 {...register("contact.phone", { required: "Please enter your phone" })}
               />
 
-              <button type="submit" onClick={() => modalRef.current?.close()} className="btn btn-primary col-span-5 text-xl">
+              <button type="submit" className="btn btn-primary col-span-5 text-xl">
                 Book Now
               </button>
             </div>
