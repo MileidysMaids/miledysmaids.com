@@ -89,12 +89,7 @@ export const Cleaning = () => {
   };
 
   const handleContactForm = () => {
-    if (!(selected === CleaningCategory.Other)) {
-      modalRef.current?.close();
-      return;
-    }
-
-    window.location.href = "/";
+    if (selected === CleaningCategory.Other) return (window.location.href = "/");
   };
 
   return (
