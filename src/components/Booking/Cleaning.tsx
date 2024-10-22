@@ -5,6 +5,7 @@ import { facilitiesSubCategories, residentialSubCategories, workplaceSubCategori
 import { CleaningCategory } from "@/types/cleaningTypes";
 import { FormValues } from "@/types/bookingTypes";
 import { motion } from "framer-motion";
+import { safeLocalStorage } from "@/utils/localStorage";
 
 const Card = (props: { children: React.ReactNode; className?: string; selected?: boolean }) => {
   const { children, className, selected, ...rest } = props;
@@ -77,7 +78,7 @@ export const Cleaning = () => {
       modalRef.current.showModal();
 
       // Load data from local storage
-      const storedData = JSON.parse(localStorage.getItem(`formData`) ?? `{}`);
+      const storedData = JSON.parse(safeLocalStorage.getItem(`formData`) ?? `{}`);
 
       reset({
         ...storedData,
