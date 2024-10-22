@@ -9,6 +9,7 @@ import { Booking } from "./Booking";
 import { CleaningCategory, CleaningItems, CleaningSubCategory } from "@/types/cleaningTypes";
 import { FormValues } from "@/types/bookingTypes";
 import { ChevronLeftIcon } from "lucide-react";
+import { safeLocalStorage } from "@/utils/localStorage";
 
 type StepDefinition = {
   name: string;
@@ -109,18 +110,25 @@ export default function Component() {
     // Check if the page was refreshed
     const isPageReload = navigationType === "reload";
 
-    if (isPageReload) {
-      // Load form data from local storage
-      const storedData = JSON.parse(localStorage.getItem(`formData`) ?? `{}`);
-      const step = JSON.parse(localStorage.getItem("step") ?? "{}");
+    // Remove form data from local storage if
+    if (!isPageReload) {
+      safeLocalStorage.removeItem("formData");
+      safeLocalStorage.setItem(`step`, JSON.stringify(currentStep + 1));
+    }
 
-      // Set form data
-      methods.reset(storedData);
-      setCurrentStep(step - 1);
-    } else {
-      // Clear local storage
-      localStorage.removeItem("formData");
-      localStorage.setItem(`step`, JSON.stringify(currentStep + 1));
+    // Load form data from local storage
+    if (isPageReload) {
+      // @ts-ignore
+      const storedData = JSON.parse(safeLocalStorage.getItem(`formData`));
+      // @ts-ignore
+      const step = JSON.parse(safeLocalStorage.getItem("step"));
+
+      if (!storedData && step) setCurrentStep(0);
+      if (storedData && step) {
+        // Set form data
+        methods.reset(storedData);
+        setCurrentStep(step - 1);
+      }
     }
   }, []);
 
@@ -134,20 +142,23 @@ export default function Component() {
         if (!success) return setError({ error, message });
 
         // Clear local storage
-        localStorage.removeItem("formData");
-        localStorage.removeItem("step");
+        safeLocalStorage.removeItem("formData");
+        safeLocalStorage.removeItem("step");
 
         window.location.href = "/service/success";
       });
   };
 
   const handleNext = (data: FieldValues) => {
+    const modal = document.getElementById("modal") as HTMLDialogElement;
+    if (modal) modal.close();
+
     // Get data from local storage
-    const storedData = JSON.parse(localStorage.getItem(`formData`) ?? `{}`);
+    const storedData = JSON.parse(safeLocalStorage.getItem(`formData`) ?? `{}`);
 
     // Save data to local storage
-    localStorage.setItem(`formData`, JSON.stringify({ ...storedData, ...data }));
-    localStorage.setItem(`step`, JSON.stringify(currentStep + 2));
+    safeLocalStorage.setItem(`formData`, JSON.stringify({ ...storedData, ...data }));
+    safeLocalStorage.setItem(`step`, JSON.stringify(currentStep + 2));
 
     // If the current step is the last step, submit the form
     if (currentStep + 1 === steps.length) return handleSubmit(data);
@@ -165,8 +176,8 @@ export default function Component() {
 
   const handleBack = () => {
     // Save data to local storage
-    localStorage.setItem(`formData`, JSON.stringify(methods.getValues()));
-    localStorage.setItem(`step`, JSON.stringify(currentStep));
+    safeLocalStorage.setItem(`formData`, JSON.stringify(methods.getValues()));
+    safeLocalStorage.setItem(`step`, JSON.stringify(currentStep));
 
     // Move back and update history
     setCurrentStep((prevStep) => {
@@ -181,7 +192,7 @@ export default function Component() {
   };
 
   const handleStepClick = (clickedStep: number) => {
-    const savedStep = JSON.parse(localStorage.getItem("step") ?? "1");
+    const savedStep = JSON.parse(safeLocalStorage.getItem("step") ?? "1");
 
     // Don't go beyond the last step
     if (clickedStep > savedStep) return;
@@ -191,7 +202,7 @@ export default function Component() {
   };
 
   const isBlocked = (clickedStep: number) => {
-    const savedStep = JSON.parse(localStorage.getItem("step") ?? "1");
+    const savedStep = JSON.parse(safeLocalStorage.getItem("step") ?? "1");
     return clickedStep > savedStep;
   };
 
